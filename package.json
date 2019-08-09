@@ -1,0 +1,12 @@
+
+{
+	"name": "com.mulova.builder",
+	"displayName": "com.mulova.builder",
+	"version": "0.0.1",
+	"unity": "2018.1",
+	"description": "build library",
+	"keywords": ["mulova", "build"],
+	"category": "mulova",
+	"dependencies": {
+	}
+}
