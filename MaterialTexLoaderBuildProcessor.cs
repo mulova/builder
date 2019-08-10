@@ -1,8 +1,8 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using comunity;
 
-namespace build
+namespace mulova.build
 {
     public class MaterialTexLoaderBuildProcessor : ComponentBuildProcess
     {

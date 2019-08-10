@@ -2,7 +2,7 @@
 using comunity;
 using UnityEditor;
 
-namespace build
+namespace mulova.build
 {
 	public class AssetBundleDupDrawer : IItemDrawer<AssetBundleDup>
     {

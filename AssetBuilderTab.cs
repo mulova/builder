@@ -1,4 +1,4 @@
-using UnityEditor;
+﻿using UnityEditor;
 using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -7,7 +7,7 @@ using System.Text;
 using System;
 using comunity;
 
-namespace build
+namespace mulova.build
 {
 	public class AssetBuilderTab : EditorTab
 	{

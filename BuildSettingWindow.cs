@@ -1,9 +1,9 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using System.Collections;
 using comunity;
 
-namespace build
+namespace mulova.build
 {
     public class BuildSettingWindow : TabbedEditorWindow
     {

@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using UnityEditor;
 using System.Text.RegularExpressions;
 using comunity;
 
-namespace build
+namespace mulova.build
 {
     public class TextureAssetBuildProcess : AssetBuildProcess
     {

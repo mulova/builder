@@ -7,7 +7,7 @@ using mulova.commons;
 using System.Text.Ex;
 using System.Collections.Generic.Ex;
 
-namespace build
+namespace mulova.build
 {
     public abstract class SceneBuildProcess
     {

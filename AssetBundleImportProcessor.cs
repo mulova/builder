@@ -7,7 +7,7 @@ using comunity;
 using mulova.commons;
 using System.Text.Ex;
 
-namespace build
+namespace mulova.build
 {
 	public class AssetBundleImportProcessor
 	#if ASSET_BUNDLE_IMPORTER

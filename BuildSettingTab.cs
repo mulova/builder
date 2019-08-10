@@ -17,7 +17,7 @@ using comunity;
 using System.Collections.Generic.Ex;
 using System.Text.Ex;
 
-namespace build
+namespace mulova.build
 {
     public class BuildSettingTab : EditorTab
     {

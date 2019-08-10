@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Copyright (c) 2014-present, Facebook, Inc. All rights reserved.
  *
  * You are hereby granted a non-exclusive, worldwide, royalty-free license to use,
@@ -18,7 +18,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-namespace build
+namespace mulova.build
 {
     using System;
     using System.Collections.Generic;

@@ -6,7 +6,7 @@ using mulova.commons;
 using comunity;
 using System.Text.Ex;
 
-namespace build
+namespace mulova.build
 {
 	public class LexiconRegistryBuildProcessor : AssetBuildProcess
 	{

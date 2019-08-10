@@ -15,7 +15,7 @@ using System.Collections.Generic.Ex;
 using System.Text.Ex;
 using System.Ex;
 
-namespace build
+namespace mulova.build
 {
 	public static class BuildScript
 	{

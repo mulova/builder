@@ -1,6 +1,6 @@
 ﻿using UnityEditor;
 
-namespace build
+namespace mulova.build
 {
     public class AssetBuilder
     {

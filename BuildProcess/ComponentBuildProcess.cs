@@ -9,7 +9,7 @@ using System.Text.Ex;
 using System.Collections.Generic.Ex;
 using UnityEngine.Ex;
 
-namespace build
+namespace mulova.build
 {
 	public abstract class ComponentBuildProcess
 	{

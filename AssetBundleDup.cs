@@ -2,7 +2,7 @@
 using comunity;
 using Object = UnityEngine.Object;
 
-namespace build
+namespace mulova.build
 {
     public class AssetBundleDup
     {

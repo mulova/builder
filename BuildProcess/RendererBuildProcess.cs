@@ -1,9 +1,9 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 using comunity;
 using UnityEngine.Ex;
 
-namespace build
+namespace mulova.build
 {
 	public class RendererBuildProcessor : ComponentBuildProcess
 	{

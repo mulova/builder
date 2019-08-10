@@ -26,7 +26,7 @@ using System.Xml;
 using UnityEditor;
 using UnityEngine;
 
-namespace build
+namespace mulova.build
 {
 	public class AndroidManifest
 	{
