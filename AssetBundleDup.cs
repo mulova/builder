@@ -6,18 +6,18 @@ namespace mulova.build
 {
     public class AssetBundleDup
     {
-        public UnityObjId dup;
-        public List<UnityObjId> refs = new List<UnityObjId>();
+        public ObjRef dup;
+        public List<ObjRef> refs = new List<ObjRef>();
 		public bool duplicate;
 
         public AssetBundleDup(Object o)
         {
-            dup = new UnityObjId(o);
+            dup = new ObjRef(o);
         }
 
         public void AddRef(Object o)
         {
-            refs.Add(new UnityObjId(o));
+            refs.Add(new ObjRef(o));
         }
 
 		public override bool Equals(object obj)

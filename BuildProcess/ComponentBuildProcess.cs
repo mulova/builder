@@ -44,7 +44,7 @@ namespace mulova.build
 		{
 			get
 			{
-				return AssetDatabase.GetAssetPath(currentObj).IsNotEmpty();
+				return !AssetDatabase.GetAssetPath(currentObj).IsEmpty();
 			}
 		}
 
@@ -167,7 +167,7 @@ namespace mulova.build
 
 		protected void AddError(string msg)
 		{
-			if (msg.IsNotEmpty())
+			if (!msg.IsEmpty())
 			{
 				errors.Add(msg);
 			}
@@ -210,7 +210,7 @@ namespace mulova.build
 				foreach (var p in processes)
 				{
 					string err = p.GetErrorMessage();
-					if (err.IsNotEmpty())
+					if (!err.IsEmpty())
 					{
 						errors.Add(err);
 					}

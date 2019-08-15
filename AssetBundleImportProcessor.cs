@@ -27,7 +27,7 @@ namespace mulova.build
 		{
 			// Clear All AssetBundles
 			List<string> assets = new List<string>();
-			foreach (UnityObjId dir in AssetBundlePath.inst.dirs)
+			foreach (ObjRef dir in AssetBundlePath.inst.dirs)
 			{
 				string[] paths = EditorAssetUtil.ListAssetPaths(dir.path, FileType.All);
 				foreach (var p in paths)
@@ -67,7 +67,7 @@ namespace mulova.build
 				if (im != null)
 				{
 					var oldName = im.assetBundleName;
-					if (oldName.IsNotEmpty() && p != "Assets/"+oldName)
+					if (!oldName.IsEmpty() && p != "Assets/"+oldName)
 					{
 						AssetBundleDep.inst.SetAssetBundleName(p);
 						Debug.LogFormat("Change AssetBundle name {0} => {1}", oldName, im.assetBundleName);

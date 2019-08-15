@@ -132,8 +132,8 @@ namespace mulova.build.v1
 		public void Build()
 		{
 			BuildConfig.Reset();
-            List<UnityObjId> dirRefs = abPath.dirs;
-            List<UnityObjId> rawDirRefs = abPath.rawDirs;
+            List<ObjRef> dirRefs = abPath.dirs;
+            List<ObjRef> rawDirRefs = abPath.rawDirs;
 
 			if (EditorUserBuildSettings.activeBuildTarget == BuildTarget.WebGL)
 			{
@@ -152,17 +152,17 @@ namespace mulova.build.v1
 				List<string> assetMods = new List<string>();
 				List<string> rawAssetMods = new List<string>();
 				// get mods
-                foreach (UnityObjId dir in rawDirRefs)
+                foreach (ObjRef dir in rawDirRefs)
 				{
                     rawAssetMods.AddRange(GetRawAssetMods(snapshot, dir.path));
 				}
-                foreach (UnityObjId dir in dirRefs)
+                foreach (ObjRef dir in dirRefs)
 				{
                     assetMods.AddRange(GetAssetMods(snapshot, dir.path));
 				}
 				string err1 = VerifyLowerCase(assetMods);
 				string err2 = VerifyLowerCase(rawAssetMods);
-				if (err1.IsNotEmpty() || err2.IsNotEmpty())
+				if (!err1.IsEmpty() || !err2.IsEmpty())
 				{
 					throw new Exception($"{err1}\n{err2}");
 
@@ -174,7 +174,7 @@ namespace mulova.build.v1
 				string[] srcList = assetMods.ConvertAll(p => "Assets/"+p).ToArray();
 				// preprocess
 				string err = BuildScript.PrebuildAll(BuildScript.VERIFY_ONLY);
-				if (err.IsNotEmpty())
+				if (!err.IsEmpty())
 				{
 					throw new Exception(err);
 				}
@@ -218,7 +218,7 @@ namespace mulova.build.v1
 			// save mod list
 			File.WriteAllText(modPath, modList.Join("\n"));
 			// save version at file
-			if (oldVersion.IsNotEmpty())
+			if (!oldVersion.IsEmpty())
 			{
 				File.WriteAllText(versionFile, string.Format("{0} {1}\n", oldVersion, newVersion));
 			}
@@ -230,7 +230,7 @@ namespace mulova.build.v1
 			foreach (var m in mods)
 			{
 				string err = AssetCache.VerifyUrl(m);
-				if (err.IsNotEmpty())
+				if (!err.IsEmpty())
 				{
 					str.Append(err).AppendLine();
 				}
@@ -509,7 +509,7 @@ namespace mulova.build.v1
 
 		public AssetDigest(string line)
 		{
-			if (line.IsNotEmpty())
+			if (!line.IsEmpty())
 			{
 				string[] tok = line.Split(Cdn.VER_SEPARATOR);
 				if (tok.Length > 1)
@@ -593,7 +593,7 @@ namespace mulova.build.v1
 
 		public bool IsValid()
 		{
-			return path.IsNotEmpty()&&timestamp != 0;
+			return !path.IsEmpty()&&timestamp != 0;
 		}
 
 		public override string ToString()

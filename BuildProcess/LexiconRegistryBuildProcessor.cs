@@ -20,7 +20,7 @@ namespace mulova.build
 			if (reg.assetDir.isValid)
 			{
 				string dir = AssetDatabase.GUIDToAssetPath(reg.assetDir);
-				if (dir.IsNotEmpty())
+				if (!dir.IsEmpty())
 				{
 					dir = EditorAssetUtil.GetAssetRelativePath(dir);
 					TextAsset[] assets = EditorAssetUtil.ListAssets<TextAsset>(dir, FileType.Text);

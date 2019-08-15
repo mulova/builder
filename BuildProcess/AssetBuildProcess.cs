@@ -110,7 +110,7 @@ namespace mulova.build
 
 		protected void AddError(string msg)
 		{
-			if (msg.IsNotEmpty())
+			if (!msg.IsEmpty())
 			{
 				errors.Add(msg);
 			}
@@ -155,7 +155,7 @@ namespace mulova.build
 				foreach (var proc in processors)
 				{
 					string err = proc.GetErrorMessage();
-					if (err.IsNotEmpty())
+					if (!err.IsEmpty())
 					{
 						errors.Add(err);
 					}
@@ -197,7 +197,7 @@ namespace mulova.build
 			foreach (AssetBuildProcess p in GetBuildProcessors())
 			{
 				string err = p.GetErrorMessage();
-				if (err.IsNotEmpty())
+				if (!err.IsEmpty())
 				{
 					errors.Add(err);
 				}
@@ -221,7 +221,7 @@ namespace mulova.build
 					AssetBuildProcess.PreprocessAssets(AssetDatabase.GetAssetPath(o), o, BuildScript.VERIFY_ONLY, texFormat);
 				}
 				string verifyError = AssetBuildProcess.GetErrorMessages();
-				if (verifyError.IsNotEmpty())
+				if (!verifyError.IsEmpty())
 				{
 					Debug.LogError(verifyError);
 					EditorUtility.DisplayDialog("Verify Fails", verifyError, "OK");

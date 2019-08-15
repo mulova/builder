@@ -68,7 +68,7 @@ namespace mulova.build
         
         protected void AddError(string msg)
         {
-            if (msg.IsNotEmpty())
+            if (!msg.IsEmpty())
             {
                 errors.Add(msg);
             }
@@ -101,7 +101,7 @@ namespace mulova.build
             foreach (SceneBuildProcess p in processPool)
             {
                 string err = p.GetErrorMessage();
-                if (err.IsNotEmpty())
+                if (!err.IsEmpty())
                 {
                     errors.Add(err);
                 }

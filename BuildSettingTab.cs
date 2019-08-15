@@ -284,7 +284,7 @@ namespace mulova.build
                 {
                     EditorPrefs.SetString(PATCH_ZIP_PATH, zipPath);
                 }
-                GUI.enabled = Directory.Exists(patchSrcDir)&&Directory.Exists(patchDstDir)&&zipPath.IsNotEmpty();
+                GUI.enabled = Directory.Exists(patchSrcDir)&&Directory.Exists(patchDstDir)&&!zipPath.IsEmpty();
                 if (GUILayout.Button("Generate"))
                 {
                     Dictionary<string, FileInfo> srcFiles = GetFiles(patchSrcDir);

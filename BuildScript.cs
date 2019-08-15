@@ -81,7 +81,7 @@ namespace mulova.build
 				EditorSceneBridge.OpenScene(s.path);
 				log.Debug("Processing Scene '{0}'", s.path);
 				string error = func(EditorSceneManager.GetActiveScene().GetRootGameObjects().Convert(o=>o.transform));
-				if (error.IsNotEmpty())
+				if (!error.IsEmpty())
 				{
 					errors.Add(error);
 				}
@@ -121,7 +121,7 @@ namespace mulova.build
                         return;
                     }
                     string error = func(p);
-                    if (error.IsNotEmpty())
+                    if (!error.IsEmpty())
                     {
                         err.Append(error).Append("\n");
                     }
@@ -460,7 +460,7 @@ namespace mulova.build
 		public static void PreprocessCurrentScene()
 		{
 			string err = PreprocessScene(EditorSceneManager.GetActiveScene().GetRootGameObjects().Convert(o => o.transform));
-			if (err.IsNotEmpty())
+			if (!err.IsEmpty())
 			{
 				throw new Exception(err);
 			}
