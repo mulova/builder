@@ -3,7 +3,7 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 using UnityEditor;
 using System.Text.RegularExpressions;
-using comunity;
+using mulova.comunity;
 
 namespace mulova.build
 {

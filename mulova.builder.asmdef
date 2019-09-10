@@ -2,8 +2,10 @@
     "name": "mulova.builder",
     "references": [
         "mulova.commons",
-        "comunity",
-        "comunity-editor"
+        "mulova.unicore",
+        "mulova.comunity",
+        "mulova.unicore.editor",
+        "mulova.comunity.editor"
     ],
     "optionalUnityReferences": [],
     "includePlatforms": [

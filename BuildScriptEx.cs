@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEditor;
 using mulova.commons;
-using comunity;
+using mulova.comunity;
 
 public static class BuildScriptEx {
 

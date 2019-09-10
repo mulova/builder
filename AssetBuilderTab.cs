@@ -1,15 +1,14 @@
-﻿using UnityEditor;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using mulova.comunity;
+using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
-using System.IO;
-using System.Text;
-using System;
-using comunity;
 
 namespace mulova.build
 {
-	public class AssetBuilderTab : EditorTab
+    public class AssetBuilderTab : EditorTab
 	{
 		private string[] names;
 		private string selected;
@@ -33,8 +32,8 @@ namespace mulova.build
 
 		public override void OnHeaderGUI()
 		{
-			EditorGUIUtil.Popup<string>("Zone", ref selected, names);
-			EditorGUIUtil.Popup<TexFormatGroup>("Texture Format", ref texFormat, TexFormatGroup.Values);
+			EditorGUILayoutUtil.Popup<string>("Zone", ref selected, names);
+			EditorGUILayoutUtil.Popup<TexFormatGroup>("Texture Format", ref texFormat, TexFormatGroup.Values);
 		}
 
 		private bool appendCleanSnapshot;
@@ -43,7 +42,7 @@ namespace mulova.build
 		{
 			EditorGUILayout.BeginHorizontal();
 			EditorGUILayout.BeginVertical();
-			EditorGUIUtil.Toggle("Append Clean Snapshot", ref appendCleanSnapshot);
+			EditorGUILayoutUtil.Toggle("Append Clean Snapshot", ref appendCleanSnapshot);
 			EditorGUILayout.EndVertical();
             if (GUILayout.Button("Build", GUILayout.Height(50)))
             {

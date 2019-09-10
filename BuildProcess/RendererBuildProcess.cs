@@ -1,11 +1,10 @@
-﻿using UnityEngine;
-using UnityEditor;
-using comunity;
+﻿using mulova.comunity;
+using UnityEngine;
 using UnityEngine.Ex;
 
 namespace mulova.build
 {
-	public class RendererBuildProcessor : ComponentBuildProcess
+    public class RendererBuildProcessor : ComponentBuildProcess
 	{
 		protected override void VerifyComponent(Component comp)
 		{
