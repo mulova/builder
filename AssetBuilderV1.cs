@@ -34,7 +34,7 @@ namespace mulova.build.v1
 		{
 			get
 			{
-				return buildTarget.ToRuntimePlatform().GetAbCategory(texFormat);
+				return texFormat.GetAbCategory(buildTarget.ToRuntimePlatform());
 			}
 		}
 
@@ -275,7 +275,7 @@ namespace mulova.build.v1
 				Object obj = AssetDatabase.LoadAssetAtPath("Assets/"+assetPath, typeof(Object));
 				if (obj != null)
 				{
-					EditorAssetUtil.BuildAssetBundle(dstPath, buildTarget, obj, Path.GetFileNameWithoutExtension(assetPath));
+					AssetBundleBuilder.BuildAssetBundle(dstPath, buildTarget, obj, Path.GetFileNameWithoutExtension(assetPath));
 					log.Debug("Create AssetBundle '{0}'", dstPath);
 				} else
 				{
