@@ -1,21 +1,19 @@
-﻿using UnityEditor;
+﻿using System;
 using System.Collections.Generic;
+using System.Collections.Generic.Ex;
+using System.IO;
+using System.Text;
+using System.Text.Ex;
+using mulova.commons;
+using mulova.comunity;
+using mulova.unicore;
+using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
-using System.IO;
-using System;
-using System.Text;
-using mulova.commons;
-using UnityEditor.SceneManagement;
-using UnityEngine.SceneManagement;
-using mulova.comunity;
-using mulova.build;
-using System.Text.Ex;
-using System.Collections.Generic.Ex;
 
 namespace mulova.build.v1
 {
-	public class AssetBuilderV1
+    public class AssetBuilderV1
 	{
 		public const string OUTPUT_ROOT = "_asset";
 		public readonly string zone;

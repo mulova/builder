@@ -1,15 +1,15 @@
 ﻿//#define ASSET_BUNDLE_IMPORTER
-using UnityEngine;
-using System.Collections;
-using UnityEditor;
 using System.Collections.Generic;
-using mulova.comunity;
-using mulova.commons;
 using System.Text.Ex;
+using mulova.commons;
+using mulova.comunity;
+using mulova.unicore;
+using UnityEditor;
+using UnityEngine;
 
 namespace mulova.build
 {
-	public class AssetBundleImportProcessor
+    public class AssetBundleImportProcessor
 	#if ASSET_BUNDLE_IMPORTER
 	: AssetPostprocessor
 	#endif

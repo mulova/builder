@@ -1,14 +1,14 @@
-﻿using System;
-using UnityEngine;
-using System.Collections.Generic;
-using UnityEditor;
+﻿using System.Collections.Generic;
+using System.Text.Ex;
 using mulova.commons;
 using mulova.comunity;
-using System.Text.Ex;
+using mulova.unicore;
+using UnityEditor;
+using UnityEngine;
 
 namespace mulova.build
 {
-	public class LexiconRegistryBuildProcessor : AssetBuildProcess
+    public class LexiconRegistryBuildProcessor : AssetBuildProcess
 	{
 		public LexiconRegistryBuildProcessor(): base("Lexicon Registry", typeof(LexiconRegistry))
 		{

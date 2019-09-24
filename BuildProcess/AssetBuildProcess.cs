@@ -1,17 +1,18 @@
-﻿using UnityEngine;
-using UnityEditor;
+﻿using System;
 using System.Collections.Generic;
-using System;
-using Object = UnityEngine.Object;
+using System.Collections.Generic.Ex;
+using System.Text.Ex;
 using System.Text.RegularExpressions;
 using mulova.commons;
-using System.Text.Ex;
-using System.Collections.Generic.Ex;
 using mulova.comunity;
+using mulova.unicore;
+using UnityEditor;
+using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace mulova.build
 {
-	public abstract class AssetBuildProcess : Loggable
+    public abstract class AssetBuildProcess : Loggable
 	{
 		protected abstract void PreprocessAsset(string path, Object obj);
 

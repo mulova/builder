@@ -1,24 +1,25 @@
-﻿using UnityEngine;
-using UnityEditor;
+﻿using System;
 using System.Collections.Generic;
+using System.Collections.Generic.Ex;
+using System.Ex;
 using System.IO;
-using System;
-using Object = UnityEngine.Object;
 using System.Reflection;
 using System.Text;
+using System.Text.Ex;
 using System.Text.RegularExpressions;
 using mulova.commons;
+using mulova.comunity;
+using mulova.unicore;
+using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEditor.SceneManagement;
-using mulova.comunity;
-using System.Collections.Generic.Ex;
-using System.Text.Ex;
-using System.Ex;
+using UnityEngine;
 using UnityEngine.Ex;
+using Object = UnityEngine.Object;
 
 namespace mulova.build
 {
-	public static class BuildScript
+    public static class BuildScript
 	{
 		public const string VERIFY_ONLY = "verify_only";
 		public const string EXCLUDE_CDN = "exclude_cdn";
