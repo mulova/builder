@@ -1,13 +1,10 @@
 {
-    "name": "mulova.builder",
+    "name": "mulova.prebuild",
     "references": [
         "mulova.commons",
         "mulova.unicore",
-        "mulova.comunity",
         "mulova.unicore.editor",
-        "mulova.comunity.editor",
-        "reorderablelist",
-        "mulova.prebuild"
+        "mulova.comunity.editor"
     ],
     "includePlatforms": [
         "Editor"

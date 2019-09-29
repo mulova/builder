@@ -4,7 +4,6 @@ using System.Collections.Generic.Ex;
 using System.Ex;
 using System.IO;
 using System.Reflection;
-using System.Text;
 using System.Text.Ex;
 using System.Text.RegularExpressions;
 using mulova.commons;
@@ -21,7 +20,6 @@ namespace mulova.build
 {
     public static class BuildScript
 	{
-		public const string VERIFY_ONLY = "verify_only";
 		public const string EXCLUDE_CDN = "exclude_cdn";
 		private static Regex ignoreRegex;
 		public static string ignorePattern = ".meta$|.fbx$|.FBX$|/Editor/|Assets/Plugins/";
@@ -54,106 +52,6 @@ namespace mulova.build
 			}
 			log.Debug("{0} ({1:P2})", info, progress);
 			return false;
-		}
-
-		/// <summary>
-		/// Fors the each scene.
-		/// </summary>
-		/// <returns>The each scene.</returns>
-		/// <param name="func">[param] scene roots,  [return] error string</param>
-		public static string ForEachScene(Func<IEnumerable<Transform>, string> func)
-		{
-			//      string current = EditorSceneBridge.currentScene;
-			List<string> errors = new List<string>();
-			EditorBuildSettingsScene[] scenes = EditorBuildSettings.scenes;
-			for (int i=0; i<scenes.Length; ++i)
-			{
-				errors.AddRange(ProcessScene(scenes[i], func));
-			}
-			return errors.Join("\n");
-		}
-
-		public static List<string> ProcessScene(EditorBuildSettingsScene s, Func<IEnumerable<Transform>, string> func)
-		{
-			List<string> errors = new List<string>(); 
-			sceneProcessing = true;
-
-			try
-			{
-				EditorSceneBridge.OpenScene(s.path);
-				log.Debug("Processing Scene '{0}'", s.path);
-				string error = func(EditorSceneManager.GetActiveScene().GetRootGameObjects().Convert(o=>o.transform));
-				if (!error.IsEmpty())
-				{
-					errors.Add(error);
-				}
-				SaveScene();
-			} catch (Exception ex)
-			{
-				log.Error(ex);
-				EditorUtility.ClearProgressBar();
-				EditorUtility.DisplayDialog("Error", "See editor log for details", "OK");
-				throw ex;
-			}
-
-			sceneProcessing = false;
-			return errors;
-		}
-
-		/// <summary>
-		/// Fors the each prefab.
-		/// </summary>
-		/// <returns>The each prefab.</returns>
-		/// <param name="func">error_string Func(assetPath, asset)</param>
-		public static string ForEachPrefab(Func<string, GameObject, string> func)
-		{
-			return ForEachAsset<GameObject>(func, FileType.Prefab);
-		}
-
-		public static string ForEachAssetPath(Func<string, string> func, FileType fileType)
-		{
-			try
-			{
-				StringBuilder err = new StringBuilder();
-				string[] paths = EditorAssetUtil.ListAssetPaths("Assets", fileType, false);
-				log.Info("Prebuild {0:D0} assets", paths.Length);
-                EditorGUIUtil.DisplayProgressBar(paths, "Asset Processing", false, p=> {
-                    if (ignorePath.IsMatch(p))
-                    {
-                        return;
-                    }
-                    string error = func(p);
-                    if (!error.IsEmpty())
-                    {
-                        err.Append(error).Append("\n");
-                    }
-                });
-				if (err.Length > 0)
-				{
-					return err.ToString();
-				} else
-				{
-					AssetDatabase.SaveAssets();
-					return null;
-				}
-			} catch (Exception ex)
-			{
-				return ex.Message+"\n"+ex.StackTrace;
-			}
-		}
-
-		/// <summary>
-		/// Fors the each resource.
-		/// </summary>
-		/// <returns>The each resource.</returns>
-		/// <param name="func">Func returns error message if occurs.</param>
-		public static string ForEachAsset<T>(Func<string, T, string> func, FileType fileType)  where T:Object
-		{
-			return ForEachAssetPath(p =>
-				{
-					T asset = AssetDatabase.LoadAssetAtPath<T>(p);
-					return func(p, asset);
-				}, fileType);
 		}
 
 		public static void Configure()
@@ -415,10 +313,10 @@ namespace mulova.build
 			ResetPrebuilder();
 			if (options != null)
 			{
-				log.Info("Prebuild options: ", options.Join(", "));
+				log.Info("Prebuild options: "+ options.Join(", "));
 			}
 			bool withoutCdn = ArrayUtility.Contains(options, EXCLUDE_CDN);
-			ForEachAssetPath(path =>
+			EditorTraversal.ForEachAssetPath(path =>
 				{
 					// Cdn assets are pre-processed in asset build time 
 					if (withoutCdn&&AssetBundlePath.inst.IsCdnPath(path))
@@ -429,7 +327,7 @@ namespace mulova.build
 					ComponentBuildProcess.VerifyComponents(obj, options);
 					return null;
 				}, FileTypeEx.UNITY_SUPPORTED);
-			ForEachAssetPath(path =>
+            EditorTraversal.ForEachAssetPath(path =>
 				{
 					// Cdn assets are pre-processed in asset build time 
 					if (withoutCdn&&AssetBundlePath.inst.IsCdnPath(path))
@@ -441,7 +339,7 @@ namespace mulova.build
 					AssetBuildProcess.PreprocessAssets(path, obj, options);
 					return null;
 				}, FileTypeEx.UNITY_SUPPORTED);
-			ForEachAssetPath(path =>
+            EditorTraversal.ForEachAssetPath(path =>
 				{
 					// Cdn assets are pre-processed in asset build time 
 					if (withoutCdn&&AssetBundlePath.inst.IsCdnPath(path))
@@ -453,7 +351,7 @@ namespace mulova.build
 					return null;
 				}, FileTypeEx.UNITY_SUPPORTED);
 
-			ForEachScene(roots=> PreprocessScene(roots, options));
+            EditorTraversal.ForEachScene(roots=> PreprocessScene(roots, options));
 			AssetDatabase.SaveAssets();
 
 			return GetPrebuildMessage();

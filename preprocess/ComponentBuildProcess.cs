@@ -14,7 +14,8 @@ namespace mulova.build
 {
     public abstract class ComponentBuildProcess
 	{
-		public abstract Type compType { get; }
+        public const string VERIFY_ONLY = "verify_only";
+        public abstract Type compType { get; }
 
 		protected abstract void VerifyComponent(Component comp);
 
@@ -24,7 +25,7 @@ namespace mulova.build
 
 		private HashSet<string> errors = new HashSet<string>();
 		private Object currentObj;
-		private object[] options;
+		public static object[] globalOptions;
 		protected bool isCdnAsset 
 		{ 
 			get
@@ -68,11 +69,11 @@ namespace mulova.build
 
 		public bool IsOption(object o)
 		{
-			if (options == null)
+			if (globalOptions == null)
 			{
 				return false;
 			}
-			foreach (object option in options)
+			foreach (object option in globalOptions)
 			{
 				if (option == o)
 				{
@@ -84,9 +85,9 @@ namespace mulova.build
 
 		public T GetOption<T>()
 		{
-			if (options != null)
+			if (globalOptions != null)
 			{
-				foreach (object option in options)
+				foreach (object option in globalOptions)
 				{
 					if (option is T)
 					{
@@ -97,7 +98,7 @@ namespace mulova.build
 			return default(T);
 		}
 
-		public void Verify(Object obj, Component comp, object[] options)
+		public void Verify(Object obj, Component comp)
 		{
 			if (compType == null ^ comp == null)
 			{
@@ -110,7 +111,6 @@ namespace mulova.build
 			try
 			{
 				this.currentObj = obj;
-				this.options = options;
 				VerifyComponent(comp);
 			} catch (Exception ex)
 			{
@@ -118,7 +118,7 @@ namespace mulova.build
 			}
 		}
 
-		public void Preprocess(Object obj, Component comp, object[] options)
+		public void Preprocess(Object obj, Component comp)
 		{
 			if (compType == null ^ comp == null)
 			{
@@ -131,8 +131,7 @@ namespace mulova.build
 			try
 			{
 				this.currentObj = obj;
-				this.options = options;
-				if (!IsOption(BuildScript.VERIFY_ONLY))
+				if (!IsOption(VERIFY_ONLY))
 				{
 					PreprocessComponent(comp);
 				}
@@ -142,7 +141,7 @@ namespace mulova.build
 			}
 		}
 
-		public void PreprocessOver(Object obj, Component comp, object[] options)
+		public void PreprocessOver(Object obj, Component comp)
 		{
 			if (compType == null ^ comp == null)
 			{
@@ -155,8 +154,7 @@ namespace mulova.build
 			try
 			{
 				this.currentObj = obj;
-				this.options = options;
-				if (!IsOption(BuildScript.VERIFY_ONLY))
+				if (!IsOption(VERIFY_ONLY))
 				{
 					PreprocessOver(comp);
 				}
@@ -186,7 +184,7 @@ namespace mulova.build
 
 		public string GetErrorMessage()
 		{
-			if (errors.IsNotEmpty())
+			if (!errors.IsEmpty())
 			{
 				return string.Format("{0}: {1}", title, errors.Join(", "));
 			} else
@@ -279,20 +277,22 @@ namespace mulova.build
 
 		public static void VerifyComponents(Object obj, params object[] options)
 		{
-			ProcessComponents((p,o,c,op)=>p.Verify(o, c, op), obj, options);
+			ProcessComponents((p,o,c)=>p.Verify(o, c), obj);
 		}
 
 		public static void PreprocessComponents(Object obj, params object[] options)
 		{
-			ProcessComponents((p,o,c,op)=>p.Preprocess(o, c, op), obj, options);
+            globalOptions = options;
+			ProcessComponents((p,o,c)=>p.Preprocess(o, c), obj);
 		}
 
 		public static void PreprocessOver(Object obj, params object[] options)
 		{
-			ProcessComponents((p,o,c,op)=>p.PreprocessOver(o, c, op), obj, options);
+            globalOptions = options;
+			ProcessComponents((p,o,c)=>p.PreprocessOver(o, c), obj);
 		}
 
-		private static void ProcessComponents(Action<ComponentBuildProcess, Object, Component, object[]> action, Object obj, params object[] options)
+		private static void ProcessComponents(Action<ComponentBuildProcess, Object, Component> action, Object obj)
 		{
 			if (obj is Component)
 			{
@@ -304,7 +304,7 @@ namespace mulova.build
 					{
 						foreach (ComponentBuildProcess p in processes)
 						{
-							action(p, obj, c, options);
+							action(p, obj, c);
 						}
 					}
 				}
@@ -319,7 +319,7 @@ namespace mulova.build
 						{
 							foreach (var p in processes)
 							{
-								action(p, obj, c, options);
+								action(p, obj, c);
 							}
 						}
 					} else

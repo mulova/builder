@@ -50,7 +50,7 @@ public static class BuildScriptEx {
 	}
 
 	public static void Refresh() {
-		BuildScript.ForEachScene(roots=> {
+		EditorTraversal.ForEachScene(roots=> {
 			foreach (Transform root in roots) {
 				foreach (TexSetter s in root.GetComponentsInChildren<TexSetter>(true)) {
 					foreach (AssetRef r in s.textures) {
@@ -63,7 +63,7 @@ public static class BuildScriptEx {
 			}
 			return null;
 		});
-		BuildScript.ForEachPrefab((path,popup)=> {
+		EditorTraversal.ForEachPrefab((path,popup)=> {
 			foreach (TexSetter s in popup.GetComponentsInChildren<TexSetter>(true)) {
 				foreach (AssetRef r in s.textures) {
 					if (r != null && !r.IsStrong()) {

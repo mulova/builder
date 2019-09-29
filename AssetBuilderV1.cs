@@ -140,7 +140,7 @@ namespace mulova.build.v1
 				rawDirRefs.Clear();
 			}
 
-			if (Directory.Exists(outputDir)&&Directory.GetFiles(outputDir).IsNotEmpty())
+			if (Directory.Exists(outputDir)&&!Directory.GetFiles(outputDir).IsEmpty())
 			{
 				throw new Exception(string.Format("Output directory {0} is not empty", outputDir));
 			}
@@ -171,7 +171,7 @@ namespace mulova.build.v1
 				log.Info("Modified assets ({0:D0})", assetMods.Count);
 				string[] srcList = assetMods.ConvertAll(p => "Assets/"+p).ToArray();
 				// preprocess
-				string err = BuildScript.PrebuildAll(BuildScript.VERIFY_ONLY);
+				string err = BuildScript.PrebuildAll(ComponentBuildProcess.VERIFY_ONLY);
 				if (!err.IsEmpty())
 				{
 					throw new Exception(err);
@@ -194,7 +194,7 @@ namespace mulova.build.v1
 				throw ex;
 			}
 
-			if (modList.IsNotEmpty())
+			if (!modList.IsEmpty())
 			{
 				SaveSnapshot(snapshot);
 			} else

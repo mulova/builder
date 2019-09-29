@@ -150,7 +150,7 @@ namespace mulova.build
             foreach (string d in deps)
             {
                 bool include = false;
-                if (pathFilter.IsNotEmpty())
+                if (!pathFilter.IsEmpty())
                 {
                     foreach (var r in pathFilter)
                     {
@@ -182,7 +182,7 @@ namespace mulova.build
                 else
                 {
                     var deps2 = AssetDatabase.GetDependencies(d, false);
-                    if (deps2.IsNotEmpty())
+                    if (!deps2.IsEmpty())
                     {
                         SetDependenciesRecursive(deps2);
                     }

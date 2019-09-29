@@ -318,7 +318,7 @@ namespace mulova.build
                     }
                     List<FileInfo> zipFiles = new List<FileInfo>(changed.Values);
                     zipFiles.AddRange(added.Values);
-                    if (zipFiles.IsNotEmpty())
+                    if (!zipFiles.IsEmpty())
                     {
                         List<string> removedRelative = new List<string>();
                         foreach (FileInfo f in removed.Values)

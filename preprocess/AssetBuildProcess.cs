@@ -4,7 +4,6 @@ using System.Collections.Generic.Ex;
 using System.Text.Ex;
 using System.Text.RegularExpressions;
 using mulova.commons;
-using mulova.comunity;
 using mulova.unicore;
 using UnityEditor;
 using UnityEngine;
@@ -14,17 +13,17 @@ namespace mulova.build
 {
     public abstract class AssetBuildProcess : Loggable
 	{
-		protected abstract void PreprocessAsset(string path, Object obj);
+        public const string VERIFY_ONLY = ComponentBuildProcess.VERIFY_ONLY;
 
-		protected abstract void VerifyAsset(string path, Object obj);
-
-		public readonly Type assetType;
+        public readonly Type assetType;
+        protected abstract void PreprocessAsset(string path, Object obj);
+        protected abstract void VerifyAsset(string path, Object obj);
 
 		private string title;
 		private List<string> errors = new List<string>();
 		private RegexMgr excludeExp = new RegexMgr();
 		private RegexMgr includeExp = new RegexMgr();
-		private object[] options;
+		private static object[] globalOptions;
 
 		private static List<AssetBuildProcess> pool;
 
@@ -50,7 +49,7 @@ namespace mulova.build
 			this.assetType = assetType;
 		}
 
-		public void Preprocess(string path, Object obj, params object[] options)
+		public void Preprocess(string path, Object obj)
 		{
 			try
 			{
@@ -66,9 +65,8 @@ namespace mulova.build
 				{
 					return;
 				}
-				this.options = options;
 				VerifyAsset(path, obj);
-				if (!IsOption(BuildScript.VERIFY_ONLY))
+				if (!IsOption(VERIFY_ONLY))
 				{
 					PreprocessAsset(path, obj);
 				}
@@ -80,11 +78,11 @@ namespace mulova.build
 
 		public bool IsOption(object o)
 		{
-			if (options == null)
+			if (globalOptions == null)
 			{
 				return false;
 			}
-			foreach (object option in options)
+			foreach (object option in globalOptions)
 			{
 				if (option == o)
 				{
@@ -96,9 +94,9 @@ namespace mulova.build
 
 		public T GetOption<T>()
 		{
-			if (options != null)
+			if (globalOptions != null)
 			{
-				foreach (object option in options)
+				foreach (object option in globalOptions)
 				{
 					if (option is T)
 					{
@@ -117,11 +115,6 @@ namespace mulova.build
 			}
 		}
 
-		protected void AddErrorConcat(params string[] msg)
-		{
-			errors.Add(string.Concat(msg));
-		}
-
 		protected void AddErrorFormat(string format, params object[] param)
 		{
 			errors.Add(string.Format(format, param));
@@ -129,7 +122,7 @@ namespace mulova.build
 
 		public string GetErrorMessage()
 		{
-			if (errors.IsNotEmpty())
+			if (!errors.IsEmpty())
 			{
 				return string.Format("{0}: {1}", title, errors.Join(", "));
 			} else
@@ -186,9 +179,10 @@ namespace mulova.build
 
 		public static void PreprocessAssets(string path, Object obj, params object[] options)
 		{
+            globalOptions = options;
 			foreach (AssetBuildProcess p in GetBuildProcessors())
 			{
-				p.Preprocess(path, obj, options);
+				p.Preprocess(path, obj);
 			}
 		}
 
@@ -212,16 +206,16 @@ namespace mulova.build
 			pool = null;
 		}
 
-		public void Verify(List<Object> list, TexFormatGroup texFormat)
+		public void Verify(List<Object> list)
 		{
-			if (list.IsNotEmpty())
+			if (!list.IsEmpty())
 			{
-				AssetBuildProcess.Reset();
+				Reset();
 				foreach (var o in list)
 				{
-					AssetBuildProcess.PreprocessAssets(AssetDatabase.GetAssetPath(o), o, BuildScript.VERIFY_ONLY, texFormat);
+					PreprocessAssets(AssetDatabase.GetAssetPath(o), o);
 				}
-				string verifyError = AssetBuildProcess.GetErrorMessages();
+				string verifyError = GetErrorMessages();
 				if (!verifyError.IsEmpty())
 				{
 					Debug.LogError(verifyError);

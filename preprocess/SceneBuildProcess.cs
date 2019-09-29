@@ -1,30 +1,29 @@
-﻿using System.Collections.Generic;
-using Object = UnityEngine.Object;
-using System;
-using UnityEngine;
-using UnityEditor;
-using mulova.commons;
-using System.Text.Ex;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Generic.Ex;
+using System.Text.Ex;
+using mulova.commons;
+using UnityEngine;
 
 namespace mulova.build
 {
     public abstract class SceneBuildProcess
     {
+        public const string VERIFY_ONLY = ComponentBuildProcess.VERIFY_ONLY;
         protected abstract void VerifyScene(IEnumerable<Transform> sceneRoots);
         protected abstract void PreprocessScene(IEnumerable<Transform> sceneRoots);
         
         private List<string> errors = new List<string>();
-        private object[] options;
+        public static object[] globalOptions;
         protected string scene { get; private set; }
 
         public bool IsOption(object o)
         {
-            if (options == null)
+            if (globalOptions == null)
             {
                 return false;
             }
-            foreach (object option in options)
+            foreach (object option in globalOptions)
             {
                 if (option == o)
                 {
@@ -36,9 +35,9 @@ namespace mulova.build
 
 		public T GetOption<T>()
 		{
-			if (options != null)
+			if (globalOptions != null)
 			{
-				foreach (object option in options)
+				foreach (object option in globalOptions)
 				{
 					if (option is T)
 					{
@@ -49,14 +48,13 @@ namespace mulova.build
 			return default(T);
 		}
         
-        public void Preprocess(IEnumerable<Transform> sceneRoots, object[] options)
+        public void Preprocess(IEnumerable<Transform> sceneRoots)
         {
             try
             {
-                this.options = options;
                 this.scene = scene;
                 VerifyScene(sceneRoots);
-				if (IsOption(BuildScript.VERIFY_ONLY))
+				if (IsOption(VERIFY_ONLY))
                 {
                     PreprocessScene(sceneRoots);
                 }
@@ -86,7 +84,7 @@ namespace mulova.build
         
         public string GetErrorMessage()
         {
-            if (errors.IsNotEmpty())
+            if (!errors.IsEmpty())
             {
                 return string.Format("{0}: {1}", scene, errors.Join(", "));
             } else
@@ -139,9 +137,10 @@ namespace mulova.build
 
         public static void PreprocessScenes(IEnumerable<Transform> sceneRoots, params object[] options)
         {
+            globalOptions = options;
             foreach (SceneBuildProcess p in processPool)
             {
-                p.Preprocess(sceneRoots, options);
+                p.Preprocess(sceneRoots);
             }
         }
 
