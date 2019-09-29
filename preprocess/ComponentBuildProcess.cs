@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Generic.Ex;
 using System.Text.Ex;
 using mulova.commons;
-using mulova.comunity;
 using mulova.unicore;
 using UnityEditor;
 using UnityEngine;
@@ -26,13 +25,14 @@ namespace mulova.build
 		private HashSet<string> errors = new HashSet<string>();
 		private Object currentObj;
 		public static object[] globalOptions;
-		protected bool isCdnAsset 
-		{ 
-			get
-			{
-				return AssetBundlePath.inst.IsCdnAsset(currentObj);
-			}
-		}
+
+		//protected bool isCdnAsset 
+		//{ 
+		//	get
+		//	{
+		//		return AssetBundlePath.inst.IsCdnAsset(currentObj);
+		//	}
+		//}
 
 		public virtual string title
 		{

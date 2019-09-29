@@ -3,8 +3,7 @@
     "references": [
         "mulova.commons",
         "mulova.unicore",
-        "mulova.unicore.editor",
-        "mulova.comunity.editor"
+        "mulova.unicore.editor"
     ],
     "includePlatforms": [
         "Editor"
