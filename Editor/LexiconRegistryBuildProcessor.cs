@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.Ex;
 using mulova.commons;
 using mulova.comunity;
+using mulova.preprocess;
 using mulova.unicore;
 using UnityEditor;
 using UnityEngine;
@@ -10,9 +12,8 @@ namespace mulova.build
 {
     public class LexiconRegistryBuildProcessor : AssetBuildProcess
 	{
-		public LexiconRegistryBuildProcessor(): base("Lexicon Registry", typeof(LexiconRegistry))
-		{
-		}
+        public override string title => "Lexicon Registry";
+        public override Type assetType => typeof(LexiconRegistry);
 
 		protected override void PreprocessAsset(string path, UnityEngine.Object obj)
 		{

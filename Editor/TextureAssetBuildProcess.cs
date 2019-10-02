@@ -1,5 +1,7 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 using mulova.comunity;
+using mulova.preprocess;
 using mulova.unicore;
 using UnityEditor;
 using UnityEngine;
@@ -10,10 +12,8 @@ namespace mulova.build
     public class TextureAssetBuildProcess : AssetBuildProcess
     {
         private Regex reg = new Regex(" (?<w>[0-9]+)x(?<h>[0-9]+) ");
-
-        public TextureAssetBuildProcess() : base("Texture Asset", typeof(Texture))
-        {
-        }
+        public override string title => "Texture Asset";
+        public override Type assetType => typeof(Texture);
 
         protected override void VerifyAsset(string path, Object obj)
         {
@@ -32,7 +32,7 @@ namespace mulova.build
                     {
                         int wpot = Mathf.ClosestPowerOfTwo(width);
                         int hpot = Mathf.ClosestPowerOfTwo(height);
-                        log.Warn("[{0}] Change texture size {1}x{2} => {3}x{4}", path, width, height, wpot, hpot);
+                        log.Log($"[{path}] Change texture size {width}x{height} => {wpot}x{hpot}");
                         TextureUtil.Resize(tex, wpot, hpot);
                     } else if (im.maxTextureSize < width||im.maxTextureSize < height)
                     {

@@ -9,20 +9,20 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace mulova.build
+namespace mulova.preprocess
 {
-    public abstract class AssetBuildProcess : Loggable
+    public abstract class AssetBuildProcess
 	{
         public const string VERIFY_ONLY = ComponentBuildProcess.VERIFY_ONLY;
 
-        public readonly Type assetType;
+        public abstract string title { get; }
+        public abstract Type assetType { get; }
         protected abstract void PreprocessAsset(string path, Object obj);
         protected abstract void VerifyAsset(string path, Object obj);
 
-		private string title;
-		private List<string> errors = new List<string>();
 		private RegexMgr excludeExp = new RegexMgr();
 		private RegexMgr includeExp = new RegexMgr();
+        protected static readonly BuildLog log = new BuildLog();
 		private static object[] globalOptions;
 
 		private static List<AssetBuildProcess> pool;
@@ -41,12 +41,6 @@ namespace mulova.build
 			{
 				return includeExp.exp;
 			}
-		}
-
-		public AssetBuildProcess(string errorTitle, Type assetType)
-		{
-			this.title = errorTitle;
-			this.assetType = assetType;
 		}
 
 		public void Preprocess(string path, Object obj)
@@ -72,7 +66,7 @@ namespace mulova.build
 				}
 			} catch (Exception ex)
 			{
-				errors.Add(string.Concat(path, "\n", ex.Message, "\n", ex.StackTrace));
+                log.Log($"{path}: {ex}");
 			}
 		}
 
@@ -107,30 +101,6 @@ namespace mulova.build
 			return default(T);
 		}
 
-		protected void AddError(string msg)
-		{
-			if (!msg.IsEmpty())
-			{
-				errors.Add(msg);
-			}
-		}
-
-		protected void AddErrorFormat(string format, params object[] param)
-		{
-			errors.Add(string.Format(format, param));
-		}
-
-		public string GetErrorMessage()
-		{
-			if (!errors.IsEmpty())
-			{
-				return string.Format("{0}: {1}", title, errors.Join(", "));
-			} else
-			{
-				return string.Empty;
-			}
-		}
-
 		public void AddExcludePattern(string regexPattern)
 		{
 			excludeExp.AddPattern(regexPattern);
@@ -139,23 +109,6 @@ namespace mulova.build
 		public void AddIncludePattern(string regexPattern)
 		{
 			includeExp.AddPattern(regexPattern);
-		}
-
-		public static string JoinErrorMessage(AssetBuildProcess[] processors)
-		{
-			List<string> errors = new List<string>();
-			if (processors != null)
-			{
-				foreach (var proc in processors)
-				{
-					string err = proc.GetErrorMessage();
-					if (!err.IsEmpty())
-					{
-						errors.Add(err);
-					}
-				}
-			}
-			return errors.Join("\n");
 		}
 
 		private static List<AssetBuildProcess> GetBuildProcessors()
@@ -186,27 +139,18 @@ namespace mulova.build
 			}
 		}
 
-		public static string GetErrorMessages()
-		{
-			List<string> errors = new List<string>();
-			foreach (AssetBuildProcess p in GetBuildProcessors())
-			{
-				string err = p.GetErrorMessage();
-				if (!err.IsEmpty())
-				{
-					errors.Add(err);
-				}
-			}
-
-			return errors.Join("\n");
-		}
-
 		public static void Reset()
 		{
 			pool = null;
+            log.Clear();
 		}
 
-		public void Verify(List<Object> list)
+        public static string GetErrorMessage()
+        {
+            return log.ToString();
+        }
+
+        public static void Verify(List<Object> list)
 		{
 			if (!list.IsEmpty())
 			{
@@ -215,7 +159,7 @@ namespace mulova.build
 				{
 					PreprocessAssets(AssetDatabase.GetAssetPath(o), o);
 				}
-				string verifyError = GetErrorMessages();
+				string verifyError = log.ToString();
 				if (!verifyError.IsEmpty())
 				{
 					Debug.LogError(verifyError);

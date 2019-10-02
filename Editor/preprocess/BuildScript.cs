@@ -7,20 +7,19 @@ using System.Reflection;
 using System.Text.Ex;
 using System.Text.RegularExpressions;
 using mulova.commons;
-using mulova.comunity;
+using mulova.preprocess;
 using mulova.unicore;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.Ex;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 namespace mulova.build
 {
     public static class BuildScript
 	{
-		public const string EXCLUDE_CDN = "exclude_cdn";
 		private static Regex ignoreRegex;
 		public static string ignorePattern = ".meta$|.fbx$|.FBX$|/Editor/|Assets/Plugins/";
 
@@ -54,109 +53,10 @@ namespace mulova.build
 			return false;
 		}
 
-		public static void Configure()
-		{
-			BuildConfig.Reset();
-            string zone = CommandLineReader.GetCustomArgument(nameof(BuildConfig.ZONE), BuildConfig.ZONE);
-			string market = CommandLineReader.GetCustomArgument("MARKET");
-			string buildTarget = CommandLineReader.GetCustomArgument("BUILD_TARGET", BuildConfig.TARGET_ANDROID);
-			var runtime = RuntimePlatform.Android;
-			if (buildTarget == BuildConfig.TARGET_ANDROID)
-			{
-				runtime = RuntimePlatform.Android;
-			} else if (buildTarget == BuildConfig.TARGET_IOS)
-			{
-				runtime = RuntimePlatform.IPhonePlayer;
-			} else if (buildTarget == BuildConfig.TARGET_OSX)
-			{
-				runtime = RuntimePlatform.OSXPlayer;
-			} else if (buildTarget == BuildConfig.TARGET_WIN)
-			{
-				runtime = RuntimePlatform.WindowsPlayer;
-			} else if (buildTarget == BuildConfig.TARGET_WEBGL)
-			{
-				runtime = RuntimePlatform.WebGLPlayer;
-			} else
-			{
-				runtime = EditorUserBuildSettings.activeBuildTarget.ToRuntimePlatform();
-			}
-
-			string buildConfigPath = string.Format("Assets/Resources/{0}.bytes", BuildConfig.FILE_NAME);
-			PropertiesReader buildConfig = new PropertiesReader(buildConfigPath);
-            buildConfig[nameof(BuildConfig.RUNTIME)] = runtime.ToString();
-			buildConfig[nameof(BuildConfig.PLATFORM)] = runtime.GetPlatformName();
-			buildConfig[nameof(BuildConfig.TARGET)] = runtime.GetTargetName();
-			buildConfig[nameof(BuildConfig.ZONE)] = zone;
-            buildConfig[nameof(BuildConfig.UNITY_VER)] = Application.unityVersion;
-            buildConfig[nameof(BuildConfig.BUILD_TIME)] = System.DateTime.UtcNow.Ticks.ToString();
-
-			ExecOutput rev = EditorUtil.ExecuteCommand("sh", "-c \"git rev-parse HEAD\"");
-			if (!rev.IsError())
-			{
-                buildConfig[nameof(BuildConfig.REVISION)] = rev.stdout.Trim();
-			} else
-			{
-				throw new Exception(rev.stderr);
-			}
-			ExecOutput branch = EditorUtil.ExecuteCommand("sh", "-c \"git rev-parse --abbrev-ref HEAD\"");
-			if (!branch.IsError())
-			{
-				string branchStr = branch.stdout.Trim();
-				buildConfig[nameof(BuildConfig.DETAIL)] = branchStr;
-				if (branchStr.StartsWith("release/"))
-				{
-                    buildConfig[nameof(BuildConfig.VERSION)] = branchStr.Substring("release/".Length);
-				}
-			} else
-			{
-				throw new Exception(rev.stderr);
-			}
-
-			File.WriteAllText(buildConfigPath, buildConfig.ToString());
-			AssetDatabase.ImportAsset(buildConfigPath, ImportAssetOptions.ForceUpdate);
-			BuildConfig.Reset();
-
-			string platformConfigPath = "Assets/Resources/platform_config.bytes";
-			PropertiesReader platformConfig = new PropertiesReader();
-			platformConfig["market"] = market;
-			// merge platform_config files
-			platformConfig.LoadFile("Assets/platform/platform_config.bytes");
-			platformConfig.LoadFile(string.Format("Assets/platform/platform_config_{0}.bytes", zone));
-			platformConfig.LoadFile(string.Format("Assets/platform/platform_config_{0}.bytes", market));
-			var file = string.Format("Assets/platform/platform_config_{0}_{1}.bytes", zone, market);
-			if (File.Exists(file))
-			{
-				platformConfig.LoadFile(file);
-			}
-			if (File.Exists("Assets/platform/platform_config_test.bytes"))
-			{ 
-				platformConfig.LoadFile("Assets/platform/platform_config_test.bytes");
-			}
-			File.WriteAllText(platformConfigPath, platformConfig.ToString());
-			AssetDatabase.ImportAsset(platformConfigPath, ImportAssetOptions.ForceUpdate);
-
-			BuildConfig.Reset();
-			Platform.Reset();
-
-			PlayerSettings.bundleVersion = BuildConfig.VERSION;
-			if (runtime == RuntimePlatform.Android)
-			{
-				PlayerSettings.Android.bundleVersionCode = BuildConfig.VERSION_CODE;
-			}
-			#if UNITY_5_6_OR_NEWER
-			PlayerSettings.applicationIdentifier = 
-			#else
-			PlayerSettings.bundleIdentifier = 
-			#endif
-				Platform.conf.GetString("package_name", PlayerSettings.applicationIdentifier);
-			AssetDatabase.SaveAssets();
-		}
-
 		public static void InitEditorLog()
 		{
 			BuildScript.log.level = LogLevel.DEBUG;
-			//            AssetBuilder.log.level = LogLevel.DEBUG;
-			TexFormatGroupEx.log.level = LogLevel.DEBUG;
+//            AssetBuilder.log.level = LogLevel.DEBUG;
 			Application.SetStackTraceLogType(LogType.Log, StackTraceLogType.ScriptOnly);
 			Application.SetStackTraceLogType(LogType.Assert, StackTraceLogType.Full);
 			Application.SetStackTraceLogType(LogType.Error, StackTraceLogType.Full);
@@ -303,53 +203,34 @@ namespace mulova.build
 		/// <summary>
 		/// Prebuild with specified AssetBuildProcess instances and all defined ComponentBuildProcess classes
 		/// </summary>
-		/// <param name="assetProcesses">Asset processes.</param>
 		/// <param name="options">Options.</param>
 		public static string PrebuildAll(params object[] options)
 		{
 			//            LibManager.CopyLibs();
-			BuildScript.LoadEditorDll();
-			BuildScript.InitEditorLog();
+			LoadEditorDll();
 			ResetPrebuilder();
 			if (options != null)
 			{
 				log.Info("Prebuild options: "+ options.Join(", "));
 			}
-			bool withoutCdn = ArrayUtility.Contains(options, EXCLUDE_CDN);
-			EditorTraversal.ForEachAssetPath(path =>
-				{
-					// Cdn assets are pre-processed in asset build time 
-					if (withoutCdn&&AssetBundlePath.inst.IsCdnPath(path))
-					{
-						return null;
-					}
+			EditorTraversal.ForEachAssetPath(FileTypeEx.UNITY_SUPPORTED,
+                path =>
+                {
 					Object obj = AssetDatabase.LoadAssetAtPath<Object>(path);
 					ComponentBuildProcess.VerifyComponents(obj, options);
 					return null;
-				}, FileTypeEx.UNITY_SUPPORTED);
-            EditorTraversal.ForEachAssetPath(path =>
+				}, path =>
 				{
-					// Cdn assets are pre-processed in asset build time 
-					if (withoutCdn&&AssetBundlePath.inst.IsCdnPath(path))
-					{
-						return null;
-					}
 					Object obj = AssetDatabase.LoadAssetAtPath<Object>(path);
 					ComponentBuildProcess.PreprocessComponents(obj, options);
 					AssetBuildProcess.PreprocessAssets(path, obj, options);
 					return null;
-				}, FileTypeEx.UNITY_SUPPORTED);
-            EditorTraversal.ForEachAssetPath(path =>
+				}, path =>
 				{
-					// Cdn assets are pre-processed in asset build time 
-					if (withoutCdn&&AssetBundlePath.inst.IsCdnPath(path))
-					{
-						return null;
-					}
 					Object obj = AssetDatabase.LoadAssetAtPath<Object>(path);
 					ComponentBuildProcess.PreprocessOver(obj, options);
 					return null;
-				}, FileTypeEx.UNITY_SUPPORTED);
+				});
 
             EditorTraversal.ForEachScene(roots=> PreprocessScene(roots, options));
 			AssetDatabase.SaveAssets();
@@ -359,7 +240,7 @@ namespace mulova.build
 
 		public static void PreprocessCurrentScene()
 		{
-			string err = PreprocessScene(EditorSceneManager.GetActiveScene().GetRootGameObjects().Convert(o => o.transform));
+			string err = PreprocessScene(SceneManager.GetActiveScene().GetRootGameObjects().Convert(o => o.transform));
 			if (!err.IsEmpty())
 			{
 				throw new Exception(err);
@@ -433,9 +314,9 @@ namespace mulova.build
 
 		public static string GetPrebuildMessage()
 		{
-			string assetErrors = AssetBuildProcess.GetErrorMessages();
-			string sceneErrors = SceneBuildProcess.GetErrorMessages();
-			string compErrors = ComponentBuildProcess.GetErrorMessages();
+			string assetErrors = AssetBuildProcess.GetErrorMessage();
+			string sceneErrors = SceneBuildProcess.GetErrorMessage();
+			string compErrors = ComponentBuildProcess.GetErrorMessage();
 			return string.Join("\n", assetErrors, sceneErrors, compErrors);
 		}
 
@@ -506,5 +387,111 @@ namespace mulova.build
 			proc.Save();
 			#endif
 		}
-	}
+        /*
+        public static void Configure()
+        {
+            BuildConfig.Reset();
+            string zone = CommandLineReader.GetCustomArgument(nameof(BuildConfig.ZONE), BuildConfig.ZONE);
+            string market = CommandLineReader.GetCustomArgument("MARKET");
+            string buildTarget = CommandLineReader.GetCustomArgument("BUILD_TARGET", BuildConfig.TARGET_ANDROID);
+            var runtime = RuntimePlatform.Android;
+            if (buildTarget == BuildConfig.TARGET_ANDROID)
+            {
+                runtime = RuntimePlatform.Android;
+            }
+            else if (buildTarget == BuildConfig.TARGET_IOS)
+            {
+                runtime = RuntimePlatform.IPhonePlayer;
+            }
+            else if (buildTarget == BuildConfig.TARGET_OSX)
+            {
+                runtime = RuntimePlatform.OSXPlayer;
+            }
+            else if (buildTarget == BuildConfig.TARGET_WIN)
+            {
+                runtime = RuntimePlatform.WindowsPlayer;
+            }
+            else if (buildTarget == BuildConfig.TARGET_WEBGL)
+            {
+                runtime = RuntimePlatform.WebGLPlayer;
+            }
+            else
+            {
+                runtime = EditorUserBuildSettings.activeBuildTarget.ToRuntimePlatform();
+            }
+
+            string buildConfigPath = string.Format("Assets/Resources/{0}.bytes", BuildConfig.FILE_NAME);
+            PropertiesReader buildConfig = new PropertiesReader(buildConfigPath);
+            buildConfig[nameof(BuildConfig.RUNTIME)] = runtime.ToString();
+            buildConfig[nameof(BuildConfig.PLATFORM)] = runtime.GetPlatformName();
+            buildConfig[nameof(BuildConfig.TARGET)] = runtime.GetTargetName();
+            buildConfig[nameof(BuildConfig.ZONE)] = zone;
+            buildConfig[nameof(BuildConfig.UNITY_VER)] = Application.unityVersion;
+            buildConfig[nameof(BuildConfig.BUILD_TIME)] = System.DateTime.UtcNow.Ticks.ToString();
+
+            ExecOutput rev = EditorUtil.ExecuteCommand("sh", "-c \"git rev-parse HEAD\"");
+            if (!rev.IsError())
+            {
+                buildConfig[nameof(BuildConfig.REVISION)] = rev.stdout.Trim();
+            }
+            else
+            {
+                throw new Exception(rev.stderr);
+            }
+            ExecOutput branch = EditorUtil.ExecuteCommand("sh", "-c \"git rev-parse --abbrev-ref HEAD\"");
+            if (!branch.IsError())
+            {
+                string branchStr = branch.stdout.Trim();
+                buildConfig[nameof(BuildConfig.DETAIL)] = branchStr;
+                if (branchStr.StartsWith("release/"))
+                {
+                    buildConfig[nameof(BuildConfig.VERSION)] = branchStr.Substring("release/".Length);
+                }
+            }
+            else
+            {
+                throw new Exception(rev.stderr);
+            }
+
+            File.WriteAllText(buildConfigPath, buildConfig.ToString());
+            AssetDatabase.ImportAsset(buildConfigPath, ImportAssetOptions.ForceUpdate);
+            BuildConfig.Reset();
+
+            string platformConfigPath = "Assets/Resources/platform_config.bytes";
+            PropertiesReader platformConfig = new PropertiesReader();
+            platformConfig["market"] = market;
+            // merge platform_config files
+            platformConfig.LoadFile("Assets/platform/platform_config.bytes");
+            platformConfig.LoadFile(string.Format("Assets/platform/platform_config_{0}.bytes", zone));
+            platformConfig.LoadFile(string.Format("Assets/platform/platform_config_{0}.bytes", market));
+            var file = string.Format("Assets/platform/platform_config_{0}_{1}.bytes", zone, market);
+            if (File.Exists(file))
+            {
+                platformConfig.LoadFile(file);
+            }
+            if (File.Exists("Assets/platform/platform_config_test.bytes"))
+            {
+                platformConfig.LoadFile("Assets/platform/platform_config_test.bytes");
+            }
+            File.WriteAllText(platformConfigPath, platformConfig.ToString());
+            AssetDatabase.ImportAsset(platformConfigPath, ImportAssetOptions.ForceUpdate);
+
+            BuildConfig.Reset();
+            Platform.Reset();
+
+            PlayerSettings.bundleVersion = BuildConfig.VERSION;
+            if (runtime == RuntimePlatform.Android)
+            {
+                PlayerSettings.Android.bundleVersionCode = BuildConfig.VERSION_CODE;
+            }
+#if UNITY_5_6_OR_NEWER
+            PlayerSettings.applicationIdentifier =
+#else
+            PlayerSettings.bundleIdentifier = 
+#endif
+                Platform.conf.GetString("package_name", PlayerSettings.applicationIdentifier);
+            AssetDatabase.SaveAssets();
+        }
+        */
+    }
 }

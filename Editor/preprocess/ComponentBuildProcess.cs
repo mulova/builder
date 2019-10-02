@@ -9,7 +9,7 @@ using UnityEngine;
 using UnityEngine.Ex;
 using Object = UnityEngine.Object;
 
-namespace mulova.build
+namespace mulova.preprocess
 {
     public abstract class ComponentBuildProcess
 	{
@@ -17,14 +17,12 @@ namespace mulova.build
         public abstract Type compType { get; }
 
 		protected abstract void VerifyComponent(Component comp);
-
 		protected abstract void PreprocessComponent(Component comp);
-
 		protected abstract void PreprocessOver(Component comp);
 
-		private HashSet<string> errors = new HashSet<string>();
 		private Object currentObj;
-		public static object[] globalOptions;
+        private static readonly BuildLog log = new BuildLog();
+        public static object[] globalOptions;
 
 		//protected bool isCdnAsset 
 		//{ 
@@ -114,8 +112,8 @@ namespace mulova.build
 				VerifyComponent(comp);
 			} catch (Exception ex)
 			{
-				errors.Add(string.Concat(path, "\n", ex.Message, "\n", ex.StackTrace));
-			}
+                log.Log($"{path}: {ex}");
+            }
 		}
 
 		public void Preprocess(Object obj, Component comp)
@@ -137,8 +135,8 @@ namespace mulova.build
 				}
 			} catch (Exception ex)
 			{
-				errors.Add(string.Concat(path, "\n", ex.Message, "\n", ex.StackTrace));
-			}
+                log.Log($"{path}: {ex}");
+            }
 		}
 
 		public void PreprocessOver(Object obj, Component comp)
@@ -160,66 +158,8 @@ namespace mulova.build
 				}
 			} catch (Exception ex)
 			{
-				errors.Add(string.Concat(path, "\n", ex.Message, "\n", ex.StackTrace));
-			}
-		}
-
-		protected void AddError(string msg)
-		{
-			if (!msg.IsEmpty())
-			{
-				errors.Add(msg);
-			}
-		}
-
-		protected void AddErrorConcat(params string[] msg)
-		{
-			errors.Add(string.Concat(msg));
-		}
-
-		protected void AddErrorFormat(string format, params object[] param)
-		{
-			errors.Add(string.Format(format, param));
-		}
-
-		public string GetErrorMessage()
-		{
-			if (!errors.IsEmpty())
-			{
-				return string.Format("{0}: {1}", title, errors.Join(", "));
-			} else
-			{
-				return string.Empty;
-			}
-		}
-
-		public static string GetErrorMessages()
-		{
-			if (processPool != null)
-			{
-				List<string> errors = new List<string>();
-				HashSet<ComponentBuildProcess> processes = new HashSet<ComponentBuildProcess>();
-				foreach (KeyValuePair<Type, List<ComponentBuildProcess>> entry in processPool)
-				{
-					if (entry.Value != null)
-					{
-						processes.AddAll(entry.Value);
-					}
-				}
-				foreach (var p in processes)
-				{
-					string err = p.GetErrorMessage();
-					if (!err.IsEmpty())
-					{
-						errors.Add(err);
-					}
-				}
-
-				return errors.Join("\n");
-			} else
-			{
-				return null;
-			}
+                log.Log($"{path}: {ex}");
+            }
 		}
 
 		private static MultiMap<Type, ComponentBuildProcess> processPool;
@@ -275,7 +215,12 @@ namespace mulova.build
 			processPool = null;
 		}
 
-		public static void VerifyComponents(Object obj, params object[] options)
+        public static string GetErrorMessage()
+        {
+            return log.ToString();
+        }
+
+        public static void VerifyComponents(Object obj, params object[] options)
 		{
 			ProcessComponents((p,o,c)=>p.Verify(o, c), obj);
 		}

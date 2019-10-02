@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Generic.Ex;
-using System.Text.Ex;
 using mulova.commons;
 using UnityEngine;
 
-namespace mulova.build
+namespace mulova.preprocess
 {
     public abstract class SceneBuildProcess
     {
         public const string VERIFY_ONLY = ComponentBuildProcess.VERIFY_ONLY;
         protected abstract void VerifyScene(IEnumerable<Transform> sceneRoots);
         protected abstract void PreprocessScene(IEnumerable<Transform> sceneRoots);
-        
-        private List<string> errors = new List<string>();
+
+        private static readonly BuildLog log = new BuildLog();
         public static object[] globalOptions;
         protected string scene { get; private set; }
 
@@ -60,51 +58,13 @@ namespace mulova.build
                 }
             } catch (Exception ex)
             {
-                errors.Add(string.Concat(scene, "\n", ex.Message, "\n", ex.StackTrace));
+                log.Log($"{scene}: {ex}");
             }
         }
-        
-        protected void AddError(string msg)
+
+        public static string GetErrorMessage()
         {
-            if (!msg.IsEmpty())
-            {
-                errors.Add(msg);
-            }
-        }
-        
-        protected void AddErrorConcat(params string[] msg)
-        {
-            errors.Add(string.Concat(msg));
-        }
-        
-        protected void AddErrorFormat(string format, params object[] param)
-        {
-            errors.Add(string.Format(format, param));
-        }
-        
-        public string GetErrorMessage()
-        {
-            if (!errors.IsEmpty())
-            {
-                return string.Format("{0}: {1}", scene, errors.Join(", "));
-            } else
-            {
-                return string.Empty;
-            }
-        }
-        
-        public static string GetErrorMessages()
-        {
-            List<string> errors = new List<string>();
-            foreach (SceneBuildProcess p in processPool)
-            {
-                string err = p.GetErrorMessage();
-                if (!err.IsEmpty())
-                {
-                    errors.Add(err);
-                }
-            }
-            return errors.Join("\n");
+            return log.ToString();
         }
 
         private static List<SceneBuildProcess> pool;
