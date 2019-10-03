@@ -22,7 +22,7 @@ namespace mulova.preprocess
 		protected abstract void PreprocessOver(Component comp);
 
 		private Object currentObj;
-        private static readonly BuildLog log = new BuildLog();
+        protected static readonly BuildLog log = new BuildLog();
         public static object[] globalOptions;
 
 		//protected bool isCdnAsset 
