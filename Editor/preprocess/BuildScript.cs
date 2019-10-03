@@ -174,18 +174,7 @@ namespace mulova.build
 			EditorUtil.SetDirty(o);
 			if (sceneProcessing)
 			{
-				EditorSceneBridge.MarkSceneDirty();
-			}
-		}
-
-		public static void SaveScene()
-		{
-			if (!EditorSceneBridge.currentScene.IsEmpty()&&EditorSceneBridge.currentScene != "Untitled")
-			{
-				if (EditorSceneBridge.isSceneDirty)
-				{
-					EditorSceneBridge.SaveScene();
-				}
+                EditorSceneManager.MarkAllScenesDirty();
 			}
 		}
 

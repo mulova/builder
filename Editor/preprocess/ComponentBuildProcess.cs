@@ -7,6 +7,7 @@ using mulova.unicore;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Ex;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 namespace mulova.preprocess
@@ -59,9 +60,9 @@ namespace mulova.preprocess
 				}
 				if (currentObj is GameObject)
 				{
-					return string.Format("[{0}]{1}", EditorSceneBridge.currentScene, (currentObj as GameObject).transform.GetScenePath());
+					return string.Format("[{0}]{1}", SceneManager.GetActiveScene().path, (currentObj as GameObject).transform.GetScenePath());
 				}
-				return EditorSceneBridge.currentScene;
+				return SceneManager.GetActiveScene().path;
 			}
 		}
 
@@ -203,11 +204,6 @@ namespace mulova.preprocess
 				processPool[type] = null;
 				return null;
 			}
-		}
-
-		protected void SetDirty(Object o)
-		{
-			EditorTraversal.SetDirty(o);
 		}
 
 		public static void Reset()

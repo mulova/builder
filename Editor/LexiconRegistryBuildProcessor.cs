@@ -43,7 +43,7 @@ namespace mulova.build
 				}
 			}
 			reg.assets = list.ToArray();
-			SetDirty(reg);
+            EditorUtil.SetDirty(reg);
 		}
 
 		protected override void VerifyAsset(string path, UnityEngine.Object obj)

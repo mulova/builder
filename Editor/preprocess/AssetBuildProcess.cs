@@ -167,10 +167,5 @@ namespace mulova.preprocess
 				}
 			}
 		}
-
-		protected void SetDirty(Object o)
-		{
-			EditorTraversal.SetDirty(o);
-		}
 	}
 }

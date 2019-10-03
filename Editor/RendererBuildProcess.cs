@@ -31,9 +31,9 @@ namespace mulova.build
 					aref.SetPath(tex);
 					setter.textures.Clear();
 					setter.textures.Add(aref);
-					SetDirty(r.gameObject);
-					SetDirty(loader);
-					SetDirty(setter);
+					EditorUtil.SetDirty(r.gameObject);
+                    EditorUtil.SetDirty(loader);
+                    EditorUtil.SetDirty(setter);
 				}
 			}
 		}
