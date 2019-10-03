@@ -23,7 +23,9 @@ namespace mulova.preprocess
 
 		private Object currentObj;
         protected static readonly BuildLog log = new BuildLog();
+
         public static object[] globalOptions;
+        private static FieldAttributeRegistry<VerifyAttribute> attributeReg = new FieldAttributeRegistry<VerifyAttribute>();
 
 		//protected bool isCdnAsset 
 		//{ 
@@ -111,6 +113,13 @@ namespace mulova.preprocess
 			{
 				this.currentObj = obj;
 				VerifyComponent(comp);
+                attributeReg.ForEach(obj, (attr, f, val) =>
+                {
+                    if (!attr.IsValid(obj, f))
+                    {
+                        log.Log($"[{path}] {attr.GetType().FullName} fails to verify {obj.GetType().FullName}.{f.Name}");
+                    }
+                });
 			} catch (Exception ex)
 			{
                 log.Log($"{path}: {ex}");

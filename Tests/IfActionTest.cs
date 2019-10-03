@@ -1,25 +1,40 @@
-﻿using mulova.commons;
+﻿using System.Collections;
+using mulova.commons;
 using mulova.unicore;
-using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 public class IfActionTest : MonoBehaviour
 {
     [If(null, IfAction.Error)]public GameObject obj;
+    [NonNullableField] public GameObject nonNull;
     public int i;
     [If(0.1f, IfAction.Error)] public float f;
 
-    [Test]
-    public void IfAttributeTest()
+    [UnityTest]
+    public IEnumerator IfAttributeTest()
     {
-        FieldAttributeRegistry reg = new FieldAttributeRegistry(typeof(IfAttribute));
-        reg.ForEach(this, (f, v) =>
+        GameObject go = new GameObject("IfActionTest");
+        var test = go.AddComponent<IfActionTest>();
+        yield return null;
+        test.VerifyAttribute();
+    }
+
+    private void VerifyAttribute()
+    {
+        FieldAttributeRegistry<VerifyAttribute> reg = new FieldAttributeRegistry<VerifyAttribute>();
+        reg.ForEach(this, (a, f, v) =>
         {
-            var attr = f.GetAttribute<IfAttribute>();
-            if (attr.action == IfAction.Error && attr.value == v)
+            if (!a.IsValid(this, f))
             {
-                Debug.LogError($"Error {name}.{f.Name} = {v}");
+                Debug.LogError($"Error {this.name}.{f.Name} = {v}");
             }
         });
+    }
+
+
+    private void Start()
+    {
+        VerifyAttribute();
     }
 }
