@@ -1,8 +1,7 @@
-﻿using UnityEngine;
-using mulova.commons;
+﻿using System;
 using System.Text.Ex;
+using mulova.commons;
 using mulova.preprocess;
-using System;
 using Object = UnityEngine.Object;
 
 namespace mulova.build
@@ -29,6 +28,11 @@ namespace mulova.build
         
         protected override void PreprocessAsset(string path, UnityEngine.Object obj)
         {
+        }
+
+        protected override void PostprocessAsset(string path, Object obj)
+        {
+            throw new NotImplementedException();
         }
     }
 }

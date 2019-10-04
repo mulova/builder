@@ -45,5 +45,9 @@ namespace mulova.build
         protected override void PreprocessAsset(string path, UnityEngine.Object obj)
         {
         }
+
+        protected override void PostprocessAsset(string path, Object obj)
+        {
+        }
     }
 }

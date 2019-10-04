@@ -1,4 +1,5 @@
-﻿using System;
+﻿/*
+using System;
 using System.Collections.Generic;
 using mulova.commons;
 using UnityEngine;
@@ -7,9 +8,9 @@ namespace mulova.preprocess
 {
     public abstract class SceneBuildProcess
     {
-        public const string VERIFY_ONLY = ComponentBuildProcess.VERIFY_ONLY;
         protected abstract void VerifyScene(IEnumerable<Transform> sceneRoots);
         protected abstract void PreprocessScene(IEnumerable<Transform> sceneRoots);
+        protected abstract void Postprocess(IEnumerable<Transform> sceneRoots);
 
         private static readonly BuildLog log = new BuildLog();
         public static object[] globalOptions;
@@ -46,15 +47,22 @@ namespace mulova.preprocess
 			return default(T);
 		}
         
-        public void Preprocess(IEnumerable<Transform> sceneRoots)
+        public void Process(ProcessStage stage, IEnumerable<Transform> sceneRoots)
         {
             try
             {
                 this.scene = scene;
-                VerifyScene(sceneRoots);
-				if (IsOption(VERIFY_ONLY))
+                if ((stage & ProcessStage.Verify) != 0)
+                {
+                    VerifyScene(sceneRoots);
+                }
+                if ((stage & ProcessStage.Preprocess) != 0)
                 {
                     PreprocessScene(sceneRoots);
+                }
+                if ((stage & ProcessStage.Postprocess) != 0)
+                {
+                    Postprocess(sceneRoots);
                 }
             } catch (Exception ex)
             {
@@ -95,14 +103,31 @@ namespace mulova.preprocess
             pool = null;
         }
 
-        public static void PreprocessScenes(IEnumerable<Transform> sceneRoots, params object[] options)
+        public static void ProcessScenes(ProcessStage stage, Transform sceneRoots, params object[] options)
         {
             globalOptions = options;
             foreach (SceneBuildProcess p in processPool)
             {
-                p.Preprocess(sceneRoots);
+                if ((stage & ProcessStage.Verify) != 0)
+                {
+                    p.VerifyScene(sceneRoots);
+                }
+            }
+            foreach (SceneBuildProcess p in processPool)
+            {
+                if ((stage & ProcessStage.Preprocess) != 0)
+                {
+                    p.PreprocessScene(sceneRoots);
+                }
+            }
+            foreach (SceneBuildProcess p in processPool)
+            {
+                if ((stage & ProcessStage.Postprocess) != 0)
+                {
+                    p.Postprocess(sceneRoots);
+                }
             }
         }
-
     }
 }
+*/

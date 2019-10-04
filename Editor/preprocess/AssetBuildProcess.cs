@@ -13,12 +13,11 @@ namespace mulova.preprocess
 {
     public abstract class AssetBuildProcess
 	{
-        public const string VERIFY_ONLY = ComponentBuildProcess.VERIFY_ONLY;
-
         public abstract string title { get; }
         public abstract Type assetType { get; }
-        protected abstract void PreprocessAsset(string path, Object obj);
         protected abstract void VerifyAsset(string path, Object obj);
+        protected abstract void PreprocessAsset(string path, Object obj);
+        protected abstract void PostprocessAsset(string path, Object obj);
 
 		private RegexMgr excludeExp = new RegexMgr();
 		private RegexMgr includeExp = new RegexMgr();
@@ -43,31 +42,21 @@ namespace mulova.preprocess
 			}
 		}
 
-		public void Preprocess(string path, Object obj)
+		public virtual bool IsApplicable(string path, Object obj)
 		{
-			try
-			{
-				if (obj != null&&!assetType.IsAssignableFrom(obj.GetType()))
-				{
-					return;
-				}
-				if (excludePath != null&&excludePath.IsMatch(path))
-				{
-					return;
-				}
-				if (includePath != null&&!includePath.IsMatch(path))
-				{
-					return;
-				}
-				VerifyAsset(path, obj);
-				if (!IsOption(VERIFY_ONLY))
-				{
-					PreprocessAsset(path, obj);
-				}
-			} catch (Exception ex)
-			{
-                log.Log($"{path}: {ex}");
-			}
+            if (obj != null&&!assetType.IsAssignableFrom(obj.GetType()))
+            {
+                return false;
+            }
+            if (excludePath != null&&excludePath.IsMatch(path))
+            {
+                return false;
+            }
+            if (includePath != null&&!includePath.IsMatch(path))
+            {
+                return false;
+            }
+            return true;
 		}
 
 		public bool IsOption(object o)
@@ -130,15 +119,6 @@ namespace mulova.preprocess
 			return pool;
 		}
 
-		public static void PreprocessAssets(string path, Object obj, params object[] options)
-		{
-            globalOptions = options;
-			foreach (AssetBuildProcess p in GetBuildProcessors())
-			{
-				p.Preprocess(path, obj);
-			}
-		}
-
 		public static void Reset()
 		{
 			pool = null;
@@ -150,22 +130,69 @@ namespace mulova.preprocess
             return log.ToString();
         }
 
-        public static void Verify(List<Object> list)
+        public static void Process(ProcessStage stage, Object obj, params object[] options)
 		{
-			if (!list.IsEmpty())
-			{
-				Reset();
-				foreach (var o in list)
-				{
-					PreprocessAssets(AssetDatabase.GetAssetPath(o), o);
-				}
-				string verifyError = log.ToString();
-				if (!verifyError.IsEmpty())
-				{
-					Debug.LogError(verifyError);
-					EditorUtility.DisplayDialog("Verify Fails", verifyError, "OK");
-				}
-			}
-		}
-	}
+            Reset();
+            globalOptions = options;
+            var processors = GetBuildProcessors();
+            var path = AssetDatabase.GetAssetPath(obj);
+            foreach (AssetBuildProcess p in processors)
+            {
+                if (p.IsApplicable(path, obj))
+                {
+                    try
+                    {
+                        if ((stage & ProcessStage.Verify) != 0)
+                        {
+                            p.VerifyAsset(path, obj);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Log($"{path}: {ex}");
+                    }
+                }
+            }
+            foreach (AssetBuildProcess p in processors)
+            {
+                if (p.IsApplicable(path, obj))
+                {
+                    try
+                    {
+                        if ((stage & ProcessStage.Preprocess) != 0)
+                        {
+                            p.PreprocessAsset(path, obj);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Log($"{path}: {ex}");
+                    }
+                }
+            }
+            foreach (AssetBuildProcess p in processors)
+            {
+                if (p.IsApplicable(path, obj))
+                {
+                    try
+                    {
+                        if ((stage & ProcessStage.Postprocess) != 0)
+                        {
+                            p.PostprocessAsset(path, obj);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Log($"{path}: {ex}");
+                    }
+                }
+            }
+            string error = log.ToString();
+            if (!error.IsEmpty())
+            {
+                Debug.LogError(error);
+                EditorUtility.DisplayDialog("Verify Fails", error, "OK");
+            }
+        }
+    }
 }

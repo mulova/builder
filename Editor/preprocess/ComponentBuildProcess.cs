@@ -13,8 +13,7 @@ using Object = UnityEngine.Object;
 namespace mulova.preprocess
 {
     public abstract class ComponentBuildProcess
-	{
-        public const string VERIFY_ONLY = "verify_only";
+    {
         public abstract Type compType { get; }
 
 		protected abstract void VerifyComponent(Component comp);
@@ -99,20 +98,29 @@ namespace mulova.preprocess
 			return default(T);
 		}
 
-		public void Verify(Object obj, Component comp)
+        public bool IsApplicable(Object obj, Component comp)
+        {
+            if (compType == null ^ comp == null)
+            {
+                return false;
+            }
+            if (compType != null && !compType.IsAssignableFrom(comp.GetType()))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public void Verify(Object obj, Component comp)
 		{
-			if (compType == null ^ comp == null)
-			{
-				return;
-			}
-			if (compType != null && !compType.IsAssignableFrom(comp.GetType()))
-			{
-				return;
-			}
+            if (!IsApplicable(obj, comp))
+            {
+                return;
+            }
 			try
 			{
 				this.currentObj = obj;
-				VerifyComponent(comp);
+                VerifyComponent(comp);
                 attributeReg.ForEach(obj, (attr, f, val) =>
                 {
                     if (!attr.IsValid(obj, f))
@@ -139,10 +147,7 @@ namespace mulova.preprocess
 			try
 			{
 				this.currentObj = obj;
-				if (!IsOption(VERIFY_ONLY))
-				{
-					PreprocessComponent(comp);
-				}
+				PreprocessComponent(comp);
 			} catch (Exception ex)
 			{
                 log.Log($"{path}: {ex}");
@@ -162,10 +167,7 @@ namespace mulova.preprocess
 			try
 			{
 				this.currentObj = obj;
-				if (!IsOption(VERIFY_ONLY))
-				{
-					PreprocessOver(comp);
-				}
+				PreprocessOver(comp);
 			} catch (Exception ex)
 			{
                 log.Log($"{path}: {ex}");
@@ -225,42 +227,42 @@ namespace mulova.preprocess
             return log.ToString();
         }
 
-        public static void VerifyComponents(Object obj, params object[] options)
-		{
-			ProcessComponents((p,o,c)=>p.Verify(o, c), obj);
-		}
-
-		public static void PreprocessComponents(Object obj, params object[] options)
-		{
+        public static void Process(ProcessStage stage, Object o, params object[] options)
+        {
             globalOptions = options;
-			ProcessComponents((p,o,c)=>p.Preprocess(o, c), obj);
-		}
 
-		public static void PreprocessOver(Object obj, params object[] options)
-		{
-            globalOptions = options;
-			ProcessComponents((p,o,c)=>p.PreprocessOver(o, c), obj);
-		}
-
-		private static void ProcessComponents(Action<ComponentBuildProcess, Object, Component> action, Object obj)
-		{
-			if (obj is Component)
-			{
-				Component c = obj as Component;
-				if (!c.CompareTag("EditorOnly"))
-				{
-					List<ComponentBuildProcess> processes = GetBuildProcessor(c.GetType());
-					if (processes != null)
-					{
-						foreach (ComponentBuildProcess p in processes)
-						{
-							action(p, obj, c);
-						}
+            if (o is Component)
+            {
+                var c = o as Component;
+                var obj = c.gameObject;
+                if (!c.CompareTag("EditorOnly"))
+                {
+                    List<ComponentBuildProcess> processes = GetBuildProcessor(c.GetType());
+                    if (processes != null)
+                    {
+                        foreach (ComponentBuildProcess p in processes)
+                        {
+                            if (p.IsApplicable(obj, c))
+                            {
+                                if ((stage & ProcessStage.Verify) != 0)
+                                {
+                                    p.Verify(o, c);
+                                }
+                                if ((stage & ProcessStage.Preprocess) != 0)
+                                {
+                                    p.Preprocess(o, c);
+                                }
+                                if ((stage & ProcessStage.Postprocess) != 0)
+                                {
+                                    p.PreprocessOver(o, c);
+                                }
+                            }
+                        }
 					}
 				}
-			} else if (obj is GameObject)
+			} else if (o is GameObject obj)
 			{
-				foreach (Component c in (obj as GameObject).GetComponentsInChildren<Component>(true))
+				foreach (Component c in (o as GameObject).GetComponentsInChildren<Component>(true))
 				{
 					if (c != null&&!c.CompareTag("EditorOnly"))
 					{
@@ -269,8 +271,22 @@ namespace mulova.preprocess
 						{
 							foreach (var p in processes)
 							{
-								action(p, obj, c);
-							}
+                                if (p.IsApplicable(obj, c))
+                                {
+                                    if ((stage & ProcessStage.Verify) != 0)
+                                    {
+                                        p.Verify(o, c);
+                                    }
+                                    if ((stage & ProcessStage.Preprocess) != 0)
+                                    {
+                                        p.Preprocess(o, c);
+                                    }
+                                    if ((stage & ProcessStage.Postprocess) != 0)
+                                    {
+                                        p.PreprocessOver(o, c);
+                                    }
+                                }
+                            }
 						}
 					} else
 					{

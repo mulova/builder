@@ -184,29 +184,33 @@ namespace mulova.build
 		/// <param name="options">Options.</param>
 		public static string PrebuildAll(params object[] options)
 		{
-			//            LibManager.CopyLibs();
 			LoadEditorDll();
 			ResetPrebuilder();
 			if (options != null)
 			{
 				log.Info("Prebuild options: "+ options.Join(", "));
 			}
+            var verifyOption = options != null ? options.Add(ProcessStage.Verify) : new object[] { ProcessStage.Verify };
+            var preOption = options != null ? options.Add(ProcessStage.Verify) : new object[] { ProcessStage.Verify };
+            var postOption = options != null ? options.Add(ProcessStage.Verify) : new object[] { ProcessStage.Verify };
 			EditorTraversal.ForEachAssetPath(FileTypeEx.UNITY_SUPPORTED,
                 path =>
                 {
 					Object obj = AssetDatabase.LoadAssetAtPath<Object>(path);
-					ComponentBuildProcess.VerifyComponents(obj, options);
+                    ComponentBuildProcess.Process(ProcessStage.Verify, obj, options);
+					AssetBuildProcess.Process(ProcessStage.Verify, obj, options);
 					return null;
 				}, path =>
 				{
-					Object obj = AssetDatabase.LoadAssetAtPath<Object>(path);
-					ComponentBuildProcess.PreprocessComponents(obj, options);
-					AssetBuildProcess.PreprocessAssets(path, obj, options);
-					return null;
-				}, path =>
-				{
-					Object obj = AssetDatabase.LoadAssetAtPath<Object>(path);
-					ComponentBuildProcess.PreprocessOver(obj, options);
+                    Object obj = AssetDatabase.LoadAssetAtPath<Object>(path);
+                    ComponentBuildProcess.Process(ProcessStage.Preprocess, obj, options);
+                    AssetBuildProcess.Process(ProcessStage.Preprocess, obj, options);
+                    return null;
+                }, path =>
+                {
+                    Object obj = AssetDatabase.LoadAssetAtPath<Object>(path);
+                    ComponentBuildProcess.Process(ProcessStage.Postprocess, obj, options);
+                    AssetBuildProcess.Process(ProcessStage.Postprocess, obj, options);
 					return null;
 				});
 
@@ -233,16 +237,15 @@ namespace mulova.build
 				var transforms = root.GetComponentsInChildren<Transform>(true);
 				foreach (Transform r in transforms)
 				{
-					ComponentBuildProcess.VerifyComponents(r.gameObject, options);
-				}
-				SceneBuildProcess.PreprocessScenes(roots, options);
-				foreach (Transform r in transforms)
-				{
-					ComponentBuildProcess.PreprocessComponents(r.gameObject, options);
+					ComponentBuildProcess.Process(ProcessStage.Verify, r.gameObject, options);
 				}
 				foreach (Transform r in transforms)
 				{
-					ComponentBuildProcess.PreprocessOver(r.gameObject, options);
+					ComponentBuildProcess.Process(ProcessStage.Preprocess, r.gameObject, options);
+				}
+				foreach (Transform r in transforms)
+				{
+					ComponentBuildProcess.Process(ProcessStage.Postprocess, r.gameObject, options);
 				}
 			}
 			return null;
@@ -270,14 +273,16 @@ namespace mulova.build
 			string[] allPaths = AssetDatabase.GetDependencies(assetPaths);
 			PreprocessAsset(allPaths, "Verify Asset (1/3)", (a, path)=>
 				{
-					ComponentBuildProcess.VerifyComponents(a, options);
-				});
-			PreprocessAsset(allPaths, "Prebuild (2/3)", (a, path)=> {
-				ComponentBuildProcess.PreprocessComponents(a, options);
-				AssetBuildProcess.PreprocessAssets(path, a, options);
+                    ComponentBuildProcess.Process(ProcessStage.Verify, a, options);
+                    AssetBuildProcess.Process(ProcessStage.Verify, a, options);
+                });
+            PreprocessAsset(allPaths, "Prebuild (2/3)", (a, path)=> {
+                ComponentBuildProcess.Process(ProcessStage.Preprocess, a, options);
+                AssetBuildProcess.Process(ProcessStage.Preprocess, a, options);
 			});
 			PreprocessAsset(allPaths, "Prebuild Over (3/3)", (a, path)=> {
-				ComponentBuildProcess.PreprocessOver(a, options);
+                ComponentBuildProcess.Process(ProcessStage.Postprocess, a, options);
+				AssetBuildProcess.Process(ProcessStage.Postprocess, a, options);
 			});
 
 			AssetDatabase.SaveAssets();
@@ -287,15 +292,13 @@ namespace mulova.build
 		{
 			ComponentBuildProcess.Reset();
 			AssetBuildProcess.Reset();
-			SceneBuildProcess.Reset();
 		}
 
 		public static string GetPrebuildMessage()
 		{
 			string assetErrors = AssetBuildProcess.GetErrorMessage();
-			string sceneErrors = SceneBuildProcess.GetErrorMessage();
 			string compErrors = ComponentBuildProcess.GetErrorMessage();
-			return string.Join("\n", assetErrors, sceneErrors, compErrors);
+			return string.Join("\n", assetErrors, compErrors);
 		}
 
 		public static void TestPostProcessBuild()

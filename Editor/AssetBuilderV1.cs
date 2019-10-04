@@ -172,7 +172,7 @@ namespace mulova.build.v1
 				log.Info("Modified assets ({0:D0})", assetMods.Count);
 				string[] srcList = assetMods.ConvertAll(p => "Assets/"+p).ToArray();
 				// preprocess
-				string err = BuildScript.PrebuildAll(ComponentBuildProcess.VERIFY_ONLY);
+				string err = BuildScript.PrebuildAll(ProcessStage.Verify);
 				if (!err.IsEmpty())
 				{
 					throw new Exception(err);
