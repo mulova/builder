@@ -178,17 +178,6 @@ namespace mulova.build
 			}
 		}
 
-		public static void ConvertAssetBundleToText(string path)
-		{
-			AssetBundle bundle = AssetBundle.LoadFromFile(path);
-			TextAsset[] csv = bundle.LoadAllAssets<TextAsset>();
-			if (csv.IsNotEmpty())
-			{
-				string dst = PathUtil.ReplaceExtension(path, ".txt");           
-				File.WriteAllBytes(dst, csv[0].bytes);
-			}
-		}
-
 		/// <summary>
 		/// Prebuild with specified AssetBuildProcess instances and all defined ComponentBuildProcess classes
 		/// </summary>
