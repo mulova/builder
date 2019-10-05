@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Text.Ex;
 using System.Text.RegularExpressions;
 using mulova.commons;
-using mulova.preprocess;
 using mulova.unicore;
 using UnityEditor;
 using UnityEditor.Callbacks;
@@ -18,7 +17,7 @@ using Object = UnityEngine.Object;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 
-namespace mulova.build
+namespace mulova.preprocess
 {
     public class BuildScript : IPreprocessBuildWithReport, IPostprocessBuildWithReport
     {

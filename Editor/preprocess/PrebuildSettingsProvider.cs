@@ -128,11 +128,17 @@ namespace mulova.preprocess
             setting.Update();
             using (var change = new EditorGUI.ChangeCheckScope())
             {
-                EditorGUILayout.PropertyField(setting.FindProperty("type"), Styles.type);
+                var type = setting.FindProperty("type");
+                EditorGUILayout.PropertyField(type, Styles.type);
                 if (change.changed)
                 {
                     setting.ApplyModifiedProperties();
                     AssetDatabase.SaveAssets();
+                }
+
+                if (GUILayout.Button("Process"))
+                {
+                    BuildScript.PrebuildAll((ProcessStage)type.enumValueIndex);
                 }
             }
         }
