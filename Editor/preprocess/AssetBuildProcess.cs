@@ -4,7 +4,6 @@ using System.Collections.Generic.Ex;
 using System.Text.Ex;
 using System.Text.RegularExpressions;
 using mulova.commons;
-using mulova.unicore;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -15,9 +14,9 @@ namespace mulova.preprocess
 	{
         public abstract string title { get; }
         public abstract Type assetType { get; }
-        protected abstract void VerifyAsset(string path, Object obj);
-        protected abstract void PreprocessAsset(string path, Object obj);
-        protected abstract void PostprocessAsset(string path, Object obj);
+        protected abstract void Verify(string path, Object obj);
+        protected abstract void Preprocess(string path, Object obj);
+        protected abstract void Postprocess(string path, Object obj);
 
 		private RegexMgr excludeExp = new RegexMgr();
 		private RegexMgr includeExp = new RegexMgr();
@@ -132,7 +131,6 @@ namespace mulova.preprocess
 
         public static void Process(ProcessStage stage, Object obj, params object[] options)
 		{
-            Reset();
             globalOptions = options;
             var processors = GetBuildProcessors();
             var path = AssetDatabase.GetAssetPath(obj);
@@ -144,7 +142,7 @@ namespace mulova.preprocess
                     {
                         if ((stage & ProcessStage.Verify) != 0)
                         {
-                            p.VerifyAsset(path, obj);
+                            p.Verify(path, obj);
                         }
                     }
                     catch (Exception ex)
@@ -161,7 +159,7 @@ namespace mulova.preprocess
                     {
                         if ((stage & ProcessStage.Preprocess) != 0)
                         {
-                            p.PreprocessAsset(path, obj);
+                            p.Preprocess(path, obj);
                         }
                     }
                     catch (Exception ex)
@@ -178,7 +176,7 @@ namespace mulova.preprocess
                     {
                         if ((stage & ProcessStage.Postprocess) != 0)
                         {
-                            p.PostprocessAsset(path, obj);
+                            p.Postprocess(path, obj);
                         }
                     }
                     catch (Exception ex)

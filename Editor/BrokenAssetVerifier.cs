@@ -12,7 +12,7 @@ namespace mulova.build
         public override Type assetType => typeof(Object);
         public override string title => "Broken Asset";
 
-        protected override void VerifyAsset(string path, Object obj)
+        protected override void Verify(string path, Object obj)
         {
             if (obj == null)
             {
@@ -26,11 +26,11 @@ namespace mulova.build
             }
         }
         
-        protected override void PreprocessAsset(string path, UnityEngine.Object obj)
+        protected override void Preprocess(string path, UnityEngine.Object obj)
         {
         }
 
-        protected override void PostprocessAsset(string path, Object obj)
+        protected override void Postprocess(string path, Object obj)
         {
             throw new NotImplementedException();
         }

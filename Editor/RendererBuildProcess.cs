@@ -8,7 +8,7 @@ namespace mulova.build
 {
     public class RendererBuildProcessor : ComponentBuildProcess
 	{
-		protected override void VerifyComponent(Component comp)
+		protected override void Verify(Component comp)
 		{
 			Renderer r = comp as Renderer;
 			// Dereference cdn texture
@@ -49,11 +49,11 @@ namespace mulova.build
 			return s.textures.Count == 1 && s.textures[0].path != EditorAssetUtil.GetAssetRelativePath(r.sharedMaterial.mainTexture);
 		}
 
-		protected override void PreprocessComponent(Component comp)
+		protected override void Preprocess(Component comp)
 		{
 		}
 
-		protected override void PreprocessOver(Component c)
+		protected override void Postprocess(Component c)
 		{
 		}
 

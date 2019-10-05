@@ -16,9 +16,9 @@ namespace mulova.preprocess
     {
         public abstract Type compType { get; }
 
-		protected abstract void VerifyComponent(Component comp);
-		protected abstract void PreprocessComponent(Component comp);
-		protected abstract void PreprocessOver(Component comp);
+		protected abstract void Verify(Component comp);
+		protected abstract void Preprocess(Component comp);
+		protected abstract void Postprocess(Component comp);
 
 		private Object currentObj;
         protected static readonly BuildLog log = new BuildLog();
@@ -120,7 +120,7 @@ namespace mulova.preprocess
 			try
 			{
 				this.currentObj = obj;
-                VerifyComponent(comp);
+                Verify(comp);
                 attributeReg.ForEach(obj, (attr, f, val) =>
                 {
                     if (!attr.IsValid(obj, f))
@@ -147,7 +147,7 @@ namespace mulova.preprocess
 			try
 			{
 				this.currentObj = obj;
-				PreprocessComponent(comp);
+				Preprocess(comp);
 			} catch (Exception ex)
 			{
                 log.Log($"{path}: {ex}");
@@ -167,7 +167,7 @@ namespace mulova.preprocess
 			try
 			{
 				this.currentObj = obj;
-				PreprocessOver(comp);
+				Postprocess(comp);
 			} catch (Exception ex)
 			{
                 log.Log($"{path}: {ex}");

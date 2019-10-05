@@ -15,7 +15,7 @@ namespace mulova.build
         public override string title => "Lexicon Registry";
         public override Type assetType => typeof(LexiconRegistry);
 
-		protected override void PreprocessAsset(string path, UnityEngine.Object obj)
+		protected override void Preprocess(string path, UnityEngine.Object obj)
 		{
 			LexiconRegistry reg = obj as LexiconRegistry;
 			if (reg.assetDir.isValid)
@@ -46,11 +46,11 @@ namespace mulova.build
             EditorUtil.SetDirty(reg);
 		}
 
-		protected override void VerifyAsset(string path, UnityEngine.Object obj)
+		protected override void Verify(string path, UnityEngine.Object obj)
 		{
 		}
 
-        protected override void PostprocessAsset(string path, UnityEngine.Object obj)
+        protected override void Postprocess(string path, UnityEngine.Object obj)
         {
         }
     }

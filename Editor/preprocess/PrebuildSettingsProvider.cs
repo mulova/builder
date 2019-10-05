@@ -13,13 +13,13 @@ namespace mulova.preprocess
     {
         public enum Type
         {
-            None, Verify, Preprocess
+            None, Verify, Preprocess, All
         }
         
         public const string SETTING_PATH = "Assets/Editor/PrebuildSettings.asset";
         
         [SerializeField]
-        private Type type;
+        public Type type;
         
         public static PrebuildSettings Get()
         {

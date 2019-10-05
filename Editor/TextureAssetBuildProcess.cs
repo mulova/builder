@@ -15,7 +15,7 @@ namespace mulova.build
         public override string title => "Texture Asset";
         public override Type assetType => typeof(Texture);
 
-        protected override void VerifyAsset(string path, Object obj)
+        protected override void Verify(string path, Object obj)
         {
             // resize
             if (!AssetConfig.TEX_NPOT)
@@ -42,11 +42,11 @@ namespace mulova.build
             }
         }
 
-        protected override void PreprocessAsset(string path, UnityEngine.Object obj)
+        protected override void Preprocess(string path, UnityEngine.Object obj)
         {
         }
 
-        protected override void PostprocessAsset(string path, Object obj)
+        protected override void Postprocess(string path, Object obj)
         {
         }
     }

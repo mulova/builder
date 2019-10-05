@@ -6,14 +6,14 @@ namespace mulova.build
 {
     public class MaterialTexLoaderBuildProcessor : ComponentBuildProcess
     {
-        protected override void VerifyComponent(Component comp) {}
+        protected override void Verify(Component comp) {}
         
-        protected override void PreprocessComponent(Component comp)
+        protected override void Preprocess(Component comp)
         {
             MaterialTexLoaderInspector.ClearMatTexture(comp as MaterialTexLoader);
         }
         
-        protected override void PreprocessOver(Component c)
+        protected override void Postprocess(Component c)
         {
         }
         
