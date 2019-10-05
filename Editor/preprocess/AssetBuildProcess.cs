@@ -10,10 +10,11 @@ using Object = UnityEngine.Object;
 
 namespace mulova.preprocess
 {
-    public abstract class AssetBuildProcess
+    public abstract class AssetBuildProcess : IComparable<AssetBuildProcess>
 	{
         public abstract string title { get; }
         public abstract Type assetType { get; }
+        public int order = int.MaxValue;
         protected abstract void Verify(string path, Object obj);
         protected abstract void Preprocess(string path, Object obj);
         protected abstract void Postprocess(string path, Object obj);
@@ -114,6 +115,7 @@ namespace mulova.preprocess
 						pool.Add(b);
 					}
 				}
+                pool.Sort();
 			}
 			return pool;
 		}
@@ -191,6 +193,11 @@ namespace mulova.preprocess
                 Debug.LogError(error);
                 EditorUtility.DisplayDialog("Verify Fails", error, "OK");
             }
+        }
+
+        public int CompareTo(AssetBuildProcess other)
+        {
+            return order - other.order;
         }
     }
 }

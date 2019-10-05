@@ -12,10 +12,10 @@ using Object = UnityEngine.Object;
 
 namespace mulova.preprocess
 {
-    public abstract class ComponentBuildProcess
+    public abstract class ComponentBuildProcess : IComparable<ComponentBuildProcess>
     {
         public abstract Type compType { get; }
-
+        public int order = int.MaxValue;
 		protected abstract void Verify(Component comp);
 		protected abstract void Preprocess(Component comp);
 		protected abstract void Postprocess(Component comp);
@@ -208,6 +208,7 @@ namespace mulova.preprocess
 						{
 							processPool.AddRange(type, b);
 						}
+                        b.Sort();
 						return b;
 					}
 					baseType = baseType.BaseType;
@@ -295,5 +296,10 @@ namespace mulova.preprocess
 				}
 			}
 		}
-	}
+
+        public int CompareTo(ComponentBuildProcess other)
+        {
+            return this.order - other.order;
+        }
+    }
 }
