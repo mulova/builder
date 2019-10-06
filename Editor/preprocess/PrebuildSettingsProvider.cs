@@ -15,12 +15,12 @@ namespace mulova.preprocess
         {
             None, Verify, Preprocess, All
         }
-        
+
         public const string SETTING_PATH = "Assets/Editor/PrebuildSettings.asset";
-        
+
         [SerializeField]
         public Type type;
-        
+
         public static PrebuildSettings Get()
         {
             var settings = AssetDatabase.LoadAssetAtPath<PrebuildSettings>(SETTING_PATH);
@@ -38,15 +38,14 @@ namespace mulova.preprocess
             }
             return settings;
         }
-        
+
         internal static SerializedObject GetSerializedSettings()
         {
             return new SerializedObject(Get());
         }
     }
 
-    /*
-// Register a SettingsProvider using UIElements for the drawing framework:
+    // Register a SettingsProvider using UIElements for the drawing framework:
     static class PrebuildSettingsUIElementsRegister
     {
         [SettingsProvider]
@@ -61,7 +60,7 @@ namespace mulova.preprocess
                 activateHandler = (searchContext, rootElement) =>
                 {
                     var settings = PrebuildSettings.GetSerializedSettings();
-                    
+
                     // rootElement is a VisualElement. If you add any children to it, the OnGUI function
                     // isn't called because the SettingsProvider uses the UIElements drawing framework.
                     //rootElement.AddStyleSheetPath("Assets/Editor/settings_ui.uss");
@@ -71,7 +70,7 @@ namespace mulova.preprocess
                     };
                     title.AddToClassList("title");
                     rootElement.Add(title);
-                    
+
                     var properties = new VisualElement()
                     {
                         style =
@@ -81,83 +80,26 @@ namespace mulova.preprocess
                     };
                     properties.AddToClassList("property-list");
                     rootElement.Add(properties);
-                    
+
                     var options = ((PrebuildSettings.Type[])Enum.GetValues(typeof(PrebuildSettings.Type))).ToList();
                     var pf = new PopupField<PrebuildSettings.Type>(options, settings.FindProperty("type").enumValueIndex);
                     pf.AddToClassList("property-value");
+                    pf.RegisterValueChangedCallback(popupChanged);
                     properties.Add(pf);
+
+                    void popupChanged(ChangeEvent<PrebuildSettings.Type> evt)
+                    {
+                        var t = settings.FindProperty("type");
+                        t.enumValueIndex = (int)evt.newValue;
+                        settings.ApplyModifiedProperties();
+                    }
                 },
-                
+
                 // Populate the search keywords to enable smart search filtering and label highlighting:
                 keywords = new HashSet<string>(new[] { "Prebuild", "Verify", "Preprocess" })
             };
-            
+
             return provider;
-        }
-    }
-    */
-
-    // Create PrebuildSettingsProvider by deriving from SettingsProvider:
-    class PrebuildSettingsProvider : SettingsProvider
-    {
-        private SerializedObject setting;
-        
-        class Styles
-        {
-            public static GUIContent type = new GUIContent("Type");
-        }
-        
-        const string SETTING_PATH = "Assets/Editor/PrebuildSettings.asset";
-        public PrebuildSettingsProvider(string path, SettingsScope scope = SettingsScope.Project)
-            : base(path, scope, new[] { "Prebuild", "Verify", "Preprocess" }) { }
-        
-        public static bool IsSettingsAvailable()
-        {
-            return File.Exists(SETTING_PATH);
-        }
-        
-        public override void OnActivate(string searchContext, VisualElement rootElement)
-        {
-            // This function is called when the user clicks on the Prebuild element in the Settings window.
-            setting = PrebuildSettings.GetSerializedSettings();
-        }
-        
-        public override void OnGUI(string searchContext)
-        {
-            // Use IMGUI to display UI:
-            setting.Update();
-            using (var change = new EditorGUI.ChangeCheckScope())
-            {
-                var type = setting.FindProperty("type");
-                EditorGUILayout.PropertyField(type, Styles.type);
-                if (change.changed)
-                {
-                    setting.ApplyModifiedProperties();
-                    AssetDatabase.SaveAssets();
-                }
-
-                if (GUILayout.Button("Process"))
-                {
-                    BuildScript.PrebuildAll((ProcessStage)type.enumValueIndex);
-                }
-            }
-        }
-        
-        // Register the SettingsProvider
-        [SettingsProvider]
-        public static SettingsProvider CreateProvider()
-        {
-            if (IsSettingsAvailable())
-            {
-                var provider = new PrebuildSettingsProvider("Project/Prebuild Settings", SettingsScope.Project);
-                
-                // Automatically extract all keywords from the Styles.
-                //provider.keywords = GetSearchKeywordsFromGUIContentProperties<Styles>();
-                return provider;
-            }
-            
-            // Settings Asset doesn't exist yet; no need to display anything in the Settings window.
-            return null;
         }
     }
 }

@@ -272,7 +272,7 @@ namespace mulova.preprocess
             {
                 if (!attr.IsValid(c, f))
                 {
-                    log.Log($"{attr.GetType().FullName} fails to verify {c.GetType().FullName}.{f.Name}");
+                    log.Log($"{attr.GetType().FullName} fails to verify {c.GetObjectId(out var _)}.{c.GetType().FullName}.{f.Name}");
                 }
             });
         }
