@@ -98,7 +98,7 @@ namespace mulova.preprocess
 			return default(T);
 		}
 
-        public bool IsApplicable(Object obj, Component comp)
+        public bool IsApplicable(Component comp)
         {
             if (compType == null ^ comp == null)
             {
@@ -113,7 +113,7 @@ namespace mulova.preprocess
 
         public void Verify(Object obj, Component comp)
 		{
-            if (!IsApplicable(obj, comp))
+            if (!IsApplicable(comp))
             {
                 return;
             }
@@ -121,13 +121,6 @@ namespace mulova.preprocess
 			{
 				this.currentObj = obj;
                 Verify(comp);
-                attributeReg.ForEach(obj, (attr, f, val) =>
-                {
-                    if (!attr.IsValid(obj, f))
-                    {
-                        log.Log($"[{path}] {attr.GetType().FullName} fails to verify {obj.GetType().FullName}.{f.Name}");
-                    }
-                });
 			} catch (Exception ex)
 			{
                 log.Log($"{path}: {ex}");
@@ -232,70 +225,57 @@ namespace mulova.preprocess
         {
             globalOptions = options;
 
-            if (o is Component)
+            if (o is Component c)
             {
-                var c = o as Component;
-                var obj = c.gameObject;
-                if (!c.CompareTag("EditorOnly"))
-                {
-                    List<ComponentBuildProcess> processes = GetBuildProcessor(c.GetType());
-                    if (processes != null)
-                    {
-                        foreach (ComponentBuildProcess p in processes)
-                        {
-                            if (p.IsApplicable(obj, c))
-                            {
-                                if ((stage & ProcessStage.Verify) != 0)
-                                {
-                                    p.Verify(o, c);
-                                }
-                                if ((stage & ProcessStage.Preprocess) != 0)
-                                {
-                                    p.Preprocess(o, c);
-                                }
-                                if ((stage & ProcessStage.Postprocess) != 0)
-                                {
-                                    p.PreprocessOver(o, c);
-                                }
-                            }
-                        }
-					}
-				}
+                ProcessComponent(stage, o, c);
 			} else if (o is GameObject obj)
 			{
-				foreach (Component c in (o as GameObject).GetComponentsInChildren<Component>(true))
-				{
-					if (c != null&&!c.CompareTag("EditorOnly"))
-					{
-						List<ComponentBuildProcess> processes = GetBuildProcessor(c.GetType());
-						if (processes != null)
-						{
-							foreach (var p in processes)
-							{
-                                if (p.IsApplicable(obj, c))
-                                {
-                                    if ((stage & ProcessStage.Verify) != 0)
-                                    {
-                                        p.Verify(o, c);
-                                    }
-                                    if ((stage & ProcessStage.Preprocess) != 0)
-                                    {
-                                        p.Preprocess(o, c);
-                                    }
-                                    if ((stage & ProcessStage.Postprocess) != 0)
-                                    {
-                                        p.PreprocessOver(o, c);
-                                    }
-                                }
+				foreach (Component comp in (o as GameObject).GetComponentsInChildren<Component>(true))
+                {
+                    ProcessComponent(stage, o, comp);
+                }
+            }
+        }
+
+        private static void ProcessComponent(ProcessStage stage, Object o, Component c)
+        {
+            if (c != null && !c.CompareTag("EditorOnly"))
+            {
+                List<ComponentBuildProcess> processes = GetBuildProcessor(c.GetType());
+                if (processes != null)
+                {
+                    foreach (var p in processes)
+                    {
+                        if (p.IsApplicable(c))
+                        {
+                            if ((stage & ProcessStage.Verify) != 0)
+                            {
+                                p.Verify(o, c);
                             }
-						}
-					} else
-					{
-						// missing component
-					}
-				}
-			}
-		}
+                            if ((stage & ProcessStage.Preprocess) != 0)
+                            {
+                                p.Preprocess(o, c);
+                            }
+                            if ((stage & ProcessStage.Postprocess) != 0)
+                            {
+                                p.PreprocessOver(o, c);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // missing component
+            }
+            attributeReg.ForEach(c, (attr, f, val) =>
+            {
+                if (!attr.IsValid(c, f))
+                {
+                    log.Log($"{attr.GetType().FullName} fails to verify {c.GetType().FullName}.{f.Name}");
+                }
+            });
+        }
 
         public int CompareTo(ComponentBuildProcess other)
         {
