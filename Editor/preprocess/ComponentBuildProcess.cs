@@ -24,7 +24,8 @@ namespace mulova.preprocess
         protected static readonly BuildLog log = new BuildLog();
 
         public static object[] globalOptions;
-        private static FieldAttributeRegistry<VerifyAttribute> attributeReg = new FieldAttributeRegistry<VerifyAttribute>();
+        private static FieldAttributeRegistry<VerifyAttribute> fieldAttributeReg = new FieldAttributeRegistry<VerifyAttribute>();
+        private static MethodAttributeRegistry<MethodVerifyAttribute> methodAttributeReg = new MethodAttributeRegistry<MethodVerifyAttribute>();
 
 		//protected bool isCdnAsset 
 		//{ 
@@ -147,7 +148,7 @@ namespace mulova.preprocess
             }
 		}
 
-		public void PreprocessOver(Object obj, Component comp)
+		public void Postprocess(Object obj, Component comp)
 		{
 			if (compType == null ^ comp == null)
 			{
@@ -258,7 +259,7 @@ namespace mulova.preprocess
                             }
                             if ((stage & ProcessStage.Postprocess) != 0)
                             {
-                                p.PreprocessOver(o, c);
+                                p.Postprocess(o, c);
                             }
                         }
                     }
@@ -268,11 +269,18 @@ namespace mulova.preprocess
             {
                 // missing component
             }
-            attributeReg.ForEach(c, (attr, f, val) =>
+            fieldAttributeReg.ForEach(c, (attr, f, val) =>
             {
                 if (!attr.IsValid(c, f))
                 {
                     log.Log($"{attr.GetType().FullName} fails to verify {c.GetObjectId(out var _)}.{c.GetType().FullName}.{f.Name}");
+                }
+            });
+            methodAttributeReg.ForEach(c, (attr, m, obj) =>
+            {
+                if (!attr.IsValid(obj, m))
+                {
+                    log.Log($"{attr.GetType().FullName} fails to verify {c.GetObjectId(out var _)}.{c.GetType().FullName}.{m.Name}");
                 }
             });
         }
