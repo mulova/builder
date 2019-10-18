@@ -21,6 +21,7 @@ namespace mulova.preprocess
 		protected abstract void Postprocess(Component comp);
 		private Object currentObj;
 
+        public static HashSet<object> globalOptions;
         private static BuildLog _log;
         public static BuildLog log
         {
@@ -80,6 +81,54 @@ namespace mulova.preprocess
 				}
 				return SceneManager.GetActiveScene().path;
 			}
+		}
+
+        public static void SetOptions(params object[] o)
+        {
+            if (o == null)
+            {
+                globalOptions = null;
+            } else
+            {
+                if (globalOptions == null)
+                {
+                    globalOptions = new HashSet<object>();
+                }
+                globalOptions.AddAll(o);
+            }
+        }
+
+        public static void AddOption(object o)
+        {
+            if (globalOptions == null)
+            {
+                globalOptions = new HashSet<object>();
+            }
+            globalOptions.Add(o);
+        }
+
+        public bool IsOption(object o)
+		{
+			if (globalOptions == null)
+			{
+				return false;
+			}
+            return globalOptions.Contains(o);
+		}
+
+		public T GetOption<T>()
+		{
+			if (globalOptions != null)
+			{
+				foreach (object option in globalOptions)
+				{
+					if (option is T)
+					{
+						return (T)option;
+					}
+				}
+			}
+			return default(T);
 		}
 
         public bool IsApplicable(Component comp)
@@ -240,25 +289,18 @@ namespace mulova.preprocess
             {
                 // missing component
             }
-            //Transform t = null;
-            //switch (o)
-            //{
-            //    case o is GameObject go:
-
-
-            //}
             fieldAttributeReg.ForEach(c, (attr, f, val) =>
             {
                 if (!attr.IsValid(c, f))
                 {
-                    log.Log(LogType.Error, $"{c.name}.{f.Name} [{attr.TypeId}]", null, o);
+                    log.Log(LogType.Error, $"{c.transform.GetScenePath()}.{f.Name} [{attr.TypeId}]", null, o);
                 }
             });
             methodAttributeReg.ForEach(c, (attr, m, obj) =>
             {
                 if (!attr.IsValid(obj, m))
                 {
-                    log.Log(LogType.Error, $"{c.name}.{m.Name} [{attr.TypeId}]", null, o);
+                    log.Log(LogType.Error, $"{c.transform.GetScenePath()}.{m.Name} [{attr.TypeId}]", null, o);
                 }
             });
         }

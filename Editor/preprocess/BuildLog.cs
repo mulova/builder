@@ -77,6 +77,16 @@ namespace mulova.preprocess
 			logs.Add(new Entry(logType, msg?.ToString(), err, obj));
 		}
 
+        public void LogError(Exception err = null, Object obj = null)
+        {
+            Log(LogType.Error, err: err, obj: obj);
+        }
+
+        public void Log(object msg = null, Object obj = null)
+        {
+            Log(LogType.Log, msg: msg, obj: obj);
+        }
+
         public override string ToString()
         {
 			if (!logs.IsEmpty())

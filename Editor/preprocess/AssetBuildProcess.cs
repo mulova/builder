@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Generic.Ex;
-using System.Text.Ex;
 using System.Text.RegularExpressions;
 using mulova.commons;
 using UnityEditor;
@@ -21,6 +20,7 @@ namespace mulova.preprocess
 
 		private RegexMgr excludeExp = new RegexMgr();
 		private RegexMgr includeExp = new RegexMgr();
+        public static HashSet<object> globalOptions;
         private static BuildLog _log;
         public static BuildLog log
         {
@@ -83,7 +83,56 @@ namespace mulova.preprocess
 			includeExp.AddPattern(regexPattern);
 		}
 
-		private static List<AssetBuildProcess> GetBuildProcessors()
+        public static void SetOptions(params object[] o)
+        {
+            if (o == null)
+            {
+                globalOptions = null;
+            }
+            else
+            {
+                if (globalOptions == null)
+                {
+                    globalOptions = new HashSet<object>();
+                }
+                globalOptions.AddAll(o);
+            }
+        }
+
+        public static void AddOption(object o)
+        {
+            if (globalOptions == null)
+            {
+                globalOptions = new HashSet<object>();
+            }
+            globalOptions.Add(o);
+        }
+
+        public bool IsOption(object o)
+        {
+            if (globalOptions == null)
+            {
+                return false;
+            }
+            return globalOptions.Contains(o);
+        }
+
+        public T GetOption<T>()
+        {
+            if (globalOptions != null)
+            {
+                foreach (object option in globalOptions)
+                {
+                    if (option is T)
+                    {
+                        return (T)option;
+                    }
+                }
+            }
+            return default(T);
+        }
+
+        private static List<AssetBuildProcess> GetBuildProcessors()
 		{
 			// collect BuildProcessors
 			if (pool == null)

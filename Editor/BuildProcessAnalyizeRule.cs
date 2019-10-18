@@ -7,9 +7,9 @@ using UnityEngine;
 
 namespace mulova.preprocess
 {
-    public class BuildPreprocessAnalyzeRule : AnalyzeRule
+    public class BuildProcessAnalyzeRule : AnalyzeRule
     {
-        public override string ruleName => "Verify Attributes";
+        public override string ruleName => "VerifyAttribute and ComponentBuildProcess";
         public override bool CanFix { get => false; }
         
         public override void ClearAnalysis()
@@ -37,7 +37,7 @@ namespace mulova.preprocess
                         foreach (var l in log.logs)
                         {
                             var r = new AnalyzeResult();
-                            r.resultName = $"[group]{g.name} [address]{e.address} [log] {l.ToString()}";
+                            r.resultName = $"[GROUP]{g.name}  [ADDR]{e.address}  [LOG]{l.ToString()}";
                             switch (l.logType)
                             {
                                 case LogType.Error:
@@ -74,7 +74,7 @@ namespace mulova.preprocess
     {
         static RegisterMyRule()
         {
-            AnalyzeWindow.RegisterNewRule<BuildPreprocessAnalyzeRule>();
+            AnalyzeWindow.RegisterNewRule<BuildProcessAnalyzeRule>();
         }
     }
 }
