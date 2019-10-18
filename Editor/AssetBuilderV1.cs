@@ -172,14 +172,19 @@ namespace mulova.build.v1
 				log.Info("Modified assets ({0:D0})", assetMods.Count);
 				string[] srcList = assetMods.ConvertAll(p => "Assets/"+p).ToArray();
 				// preprocess
-				string err = BuildScript.PrebuildAll(ProcessStage.Verify);
-				if (!err.IsEmpty())
+				var buildLog = BuildScript.PrebuildAll(ProcessStage.Verify);
+				if (!buildLog.isEmpty)
 				{
-					throw new Exception(err);
-				}
-				BuildScript.PrebuildAssets(srcList, texFormat);
-				// change texture formats
-				texFormat.ConvertDependencies(srcList);
+                    throw new Exception(buildLog.ToString());
+                }
+                buildLog = BuildScript.PrebuildAssets(srcList);
+                if (!buildLog.isEmpty)
+                {
+                    Debug.LogError(buildLog.ToString());
+                    EditorUtility.DisplayDialog("Verify Fails", buildLog.ToString(), "OK");
+                }
+                // change texture formats
+                texFormat.ConvertDependencies(srcList);
 				// build
 				GenerateRawAsset(rawAssetMods, outputDir);
 				GenerateAsset(assetMods, outputDir);

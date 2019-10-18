@@ -7,7 +7,9 @@
         "mulova.unicore.editor",
         "mulova.comunity.editor",
         "reorderablelist",
-        "mulova.prebuild"
+        "mulova.prebuild",
+        "Unity.Addressables",
+        "Unity.Addressables.Editor"
     ],
     "includePlatforms": [
         "Editor"
@@ -18,5 +20,6 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": []
+    "versionDefines": [],
+    "noEngineReferences": false
 }

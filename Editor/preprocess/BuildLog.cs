@@ -1,46 +1,104 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Generic.Ex;
 using System.Text.Ex;
+using mulova.commons;
+using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace mulova.preprocess
 {
     public class BuildLog
 	{
-        //public static readonly BuildLog inst = new BuildLog();
+        public class Entry
+        {
+            public readonly Object obj;
+            public readonly Exception error;
+            public readonly string msg;
+            public readonly LogType logType;
 
-		private HashSet<string> errors = new HashSet<string>();
+            public Entry(LogType logType, string msg = null, Exception err = null, Object obj = null)
+            {
+                this.logType = logType;
+                this.msg = msg;
+                this.error = err;
+                this.obj = obj;
+            }
+
+            public override string ToString()
+            {
+                if (error != null)
+                {
+                    if (msg != null)
+                    {
+                        return string.Join(msg, "\n", error.ToString());
+                    } else
+                    {
+                        return error.ToString();
+                    }
+                } else
+                {
+                    if (msg != null)
+                    {
+                        return msg;
+                    } else
+                    {
+                        return "";
+                    }
+                }
+            }
+
+            public override int GetHashCode()
+            {
+                if (msg != null)
+                {
+                    return msg.GetHashCode();
+                }
+                else
+                {
+                    return error.GetHashCode();
+                }
+            }
+        }
+
+        public readonly HashSet<Entry> logs = new HashSet<Entry>();
 
         public void Clear()
         {
-            errors.Clear();
+            logs.Clear();
         }
 
-        public void Log(object msg)
+        public void Log(LogType logType, object msg = null, Exception err = null, Object obj = null)
 		{
-            if (msg is string m && m.IsEmpty())
+            if (msg == null && err == null)
             {
                 return;
             }
-            if (msg != null)
-			{
-				errors.Add(msg.ToString());
-			}
-		}
-
-        public void LogFormat(string format, params object[] param)
-		{
-			errors.Add(string.Format(format, param));
+			logs.Add(new Entry(logType, msg?.ToString(), err, obj));
 		}
 
         public override string ToString()
         {
-			if (!errors.IsEmpty())
+			if (!logs.IsEmpty())
 			{
-				return errors.Join("\n");
+				return logs.Join("\n");
 			} else
 			{
 				return string.Empty;
 			}
 		}
-	}
+
+        public bool isEmpty
+        {
+            get
+            {
+                return logs.IsEmpty();
+            }
+        }
+
+        public void Merge(BuildLog other)
+        {
+            this.logs.AddAll(other.logs);
+        }
+    }
 }

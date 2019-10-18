@@ -32,7 +32,7 @@ namespace mulova.build
                     {
                         int wpot = Mathf.ClosestPowerOfTwo(width);
                         int hpot = Mathf.ClosestPowerOfTwo(height);
-                        log.Log($"[{path}] Change texture size {width}x{height} => {wpot}x{hpot}");
+                        log.Log(LogType.Error, $"[{path}] Change texture size {width}x{height} => {wpot}x{hpot}", null, obj);
                         TextureUtil.Resize(tex, wpot, hpot);
                     } else if (im.maxTextureSize < width||im.maxTextureSize < height)
                     {

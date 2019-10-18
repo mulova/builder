@@ -180,44 +180,46 @@ namespace mulova.preprocess
 			}
 		}
 
-		public static string PrebuildAll(ProcessStage stage, params object[] options)
+		public static BuildLog PrebuildAll(ProcessStage stage, BuildLog buildLog = null)
 		{
 			LoadEditorDll();
-			ResetPrebuilder();
-			if (options != null)
-			{
-				log.Info("Prebuild options: "+ options.Join(", "));
-			}
-            List<Func<string, string>> func = new List<Func<string, string>>();
+            if (buildLog == null)
+            {
+                buildLog = new BuildLog();
+            }
+            AssetBuildProcess.log = buildLog;
+            ComponentBuildProcess.log = buildLog;
+            var func = new List<Action<string>>();
             if ((stage & ProcessStage.Verify) != 0)
             {
-                func.Add(GetPreprocessFunc(ProcessStage.Verify, options));
+                func.Add(GetPreprocessFunc(ProcessStage.Verify));
             }
             if ((stage & ProcessStage.Preprocess) != 0)
             {
-                func.Add(GetPreprocessFunc(ProcessStage.Preprocess, options));
+                func.Add(GetPreprocessFunc(ProcessStage.Preprocess));
             }
             if ((stage & ProcessStage.Postprocess) != 0)
             {
-                func.Add(GetPreprocessFunc(ProcessStage.Postprocess, options));
+                func.Add(GetPreprocessFunc(ProcessStage.Postprocess));
             }
             EditorTraversal.ForEachAssetPath(FileTypeEx.UNITY_SUPPORTED, func.ToArray());
 
-            EditorTraversal.ForEachScene(roots=> ProcessScene(roots, options));
+            EditorTraversal.ForEachScene(roots=> ProcessScene(roots));
 			AssetDatabase.SaveAssets();
 
-			return GetPrebuildMessage();
-		}
+            AssetBuildProcess.log = null;
+            ComponentBuildProcess.log = null;
+            return buildLog;
 
-        private static Func<string, string> GetPreprocessFunc(ProcessStage stage, params object[] options)
-        {
-            return path =>
+            Action<string> GetPreprocessFunc(ProcessStage s)
             {
-                Object obj = AssetDatabase.LoadAssetAtPath<Object>(path);
-                ComponentBuildProcess.Process(stage, obj, options);
-                AssetBuildProcess.Process(stage, obj, options);
-                return null;
-            };
+                return path =>
+                {
+                    Object obj = AssetDatabase.LoadAssetAtPath<Object>(path);
+                    ComponentBuildProcess.Process(s, obj);
+                    AssetBuildProcess.Process(s, obj);
+                };
+            }
         }
 
         public static void ProcessCurrentScene()
@@ -230,22 +232,22 @@ namespace mulova.preprocess
 			EditorSceneManager.SaveOpenScenes();
 		}
 
-		public static string ProcessScene(Scene scene, params object[] options)
+		public static string ProcessScene(Scene scene)
 		{
 			foreach (var root in scene.GetRootGameObjects())
 			{
 				var transforms = root.GetComponentsInChildren<Transform>(true);
 				foreach (Transform r in transforms)
 				{
-					ComponentBuildProcess.Process(ProcessStage.Verify, r.gameObject, options);
+					ComponentBuildProcess.Process(ProcessStage.Verify, r.gameObject);
 				}
 				foreach (Transform r in transforms)
 				{
-					ComponentBuildProcess.Process(ProcessStage.Preprocess, r.gameObject, options);
+					ComponentBuildProcess.Process(ProcessStage.Preprocess, r.gameObject);
 				}
 				foreach (Transform r in transforms)
 				{
-					ComponentBuildProcess.Process(ProcessStage.Postprocess, r.gameObject, options);
+					ComponentBuildProcess.Process(ProcessStage.Postprocess, r.gameObject);
 				}
 			}
 			return null;
@@ -263,37 +265,34 @@ namespace mulova.preprocess
             });
 		}
 
-		public static void PrebuildAssets(string[] assetPaths, params object[] options)
+        public static BuildLog PrebuildAssets(string[] assetPaths, BuildLog buildLog = null)
 		{
-			string[] allPaths = AssetDatabase.GetDependencies(assetPaths);
+            if (buildLog == null)
+            {
+                buildLog = new BuildLog();
+            }
+            ComponentBuildProcess.log = buildLog;
+            AssetBuildProcess.log = buildLog;
+
+            string[] allPaths = AssetDatabase.GetDependencies(assetPaths);
 			PrebuildAssets(allPaths, "Verify Asset (1/3)", (a, path)=>
 			{
-                ComponentBuildProcess.Process(ProcessStage.Verify, a, options);
-                AssetBuildProcess.Process(ProcessStage.Verify, a, options);
+                ComponentBuildProcess.Process(ProcessStage.Verify, a);
+                AssetBuildProcess.Process(ProcessStage.Verify, a);
             });
             PrebuildAssets(allPaths, "Prebuild (2/3)", (a, path)=> {
-                ComponentBuildProcess.Process(ProcessStage.Preprocess, a, options);
-                AssetBuildProcess.Process(ProcessStage.Preprocess, a, options);
+                ComponentBuildProcess.Process(ProcessStage.Preprocess, a);
+                AssetBuildProcess.Process(ProcessStage.Preprocess, a);
 			});
 			PrebuildAssets(allPaths, "Prebuild Over (3/3)", (a, path)=> {
-                ComponentBuildProcess.Process(ProcessStage.Postprocess, a, options);
-				AssetBuildProcess.Process(ProcessStage.Postprocess, a, options);
+                ComponentBuildProcess.Process(ProcessStage.Postprocess, a);
+				AssetBuildProcess.Process(ProcessStage.Postprocess, a);
 			});
 
 			AssetDatabase.SaveAssets();
-		}
-
-		public static void ResetPrebuilder()
-		{
-			ComponentBuildProcess.Reset();
-			AssetBuildProcess.Reset();
-		}
-
-		public static string GetPrebuildMessage()
-		{
-			string assetErrors = AssetBuildProcess.GetErrorMessage();
-			string compErrors = ComponentBuildProcess.GetErrorMessage();
-			return string.Join("\n", assetErrors, compErrors);
+            ComponentBuildProcess.log = null;
+            AssetBuildProcess.log = null;
+            return buildLog;
 		}
 
 		public static void TestPostProcessBuild()
@@ -365,21 +364,21 @@ namespace mulova.preprocess
 
         public void OnPreprocessBuild(BuildReport report)
         {
-            string err = null;
+            var buildLog = new BuildLog();
             if (PrebuildSettings.Get().type == PrebuildSettings.Type.Verify)
             {
-                err = PrebuildAll(ProcessStage.Verify);
+                PrebuildAll(ProcessStage.Verify, buildLog);
             } else if (PrebuildSettings.Get().type == PrebuildSettings.Type.Preprocess)
             {
-                err = PrebuildAll(ProcessStage.Preprocess | ProcessStage.Postprocess);
+                PrebuildAll(ProcessStage.Preprocess | ProcessStage.Postprocess, buildLog);
             }
             else if (PrebuildSettings.Get().type == PrebuildSettings.Type.All)
             {
-                err = PrebuildAll(ProcessStage.Verify | ProcessStage.Preprocess | ProcessStage.Postprocess);
+                PrebuildAll(ProcessStage.Verify | ProcessStage.Preprocess | ProcessStage.Postprocess, buildLog);
             }
-            if (!err.IsEmpty())
+            if (!buildLog.isEmpty)
             {
-                throw new Exception(err);
+                throw new Exception(buildLog.ToString());
             }
         }
 

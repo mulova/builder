@@ -19,11 +19,25 @@ namespace mulova.preprocess
 		protected abstract void Verify(Component comp);
 		protected abstract void Preprocess(Component comp);
 		protected abstract void Postprocess(Component comp);
-
 		private Object currentObj;
-        protected static readonly BuildLog log = new BuildLog();
 
-        public static object[] globalOptions;
+        private static BuildLog _log;
+        public static BuildLog log
+        {
+            get
+            {
+                if (_log == null)
+                {
+                    _log = new BuildLog();
+                }
+                return _log;
+            }
+            set
+            {
+                _log = value;
+            }
+        }
+
         private static FieldAttributeRegistry<VerifyAttribute> fieldAttributeReg = new FieldAttributeRegistry<VerifyAttribute>();
         private static MethodAttributeRegistry<MethodVerifyAttribute> methodAttributeReg = new MethodAttributeRegistry<MethodVerifyAttribute>();
 
@@ -68,37 +82,6 @@ namespace mulova.preprocess
 			}
 		}
 
-		public bool IsOption(object o)
-		{
-			if (globalOptions == null)
-			{
-				return false;
-			}
-			foreach (object option in globalOptions)
-			{
-				if (option == o)
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-
-		public T GetOption<T>()
-		{
-			if (globalOptions != null)
-			{
-				foreach (object option in globalOptions)
-				{
-					if (option is T)
-					{
-						return (T)option;
-					}
-				}
-			}
-			return default(T);
-		}
-
         public bool IsApplicable(Component comp)
         {
             if (compType == null ^ comp == null)
@@ -124,7 +107,7 @@ namespace mulova.preprocess
                 Verify(comp);
 			} catch (Exception ex)
 			{
-                log.Log($"{path}: {ex}");
+                log.Log(LogType.Error, path, ex);
             }
 		}
 
@@ -144,7 +127,7 @@ namespace mulova.preprocess
 				Preprocess(comp);
 			} catch (Exception ex)
 			{
-                log.Log($"{path}: {ex}");
+                log.Log(LogType.Error, path, ex);
             }
 		}
 
@@ -164,7 +147,7 @@ namespace mulova.preprocess
 				Postprocess(comp);
 			} catch (Exception ex)
 			{
-                log.Log($"{path}: {ex}");
+                log.Log(LogType.Error, path, ex);
             }
 		}
 
@@ -212,20 +195,8 @@ namespace mulova.preprocess
 			}
 		}
 
-		public static void Reset()
-		{
-			processPool = null;
-		}
-
-        public static string GetErrorMessage()
+        public static void Process(ProcessStage stage, Object o)
         {
-            return log.ToString();
-        }
-
-        public static void Process(ProcessStage stage, Object o, params object[] options)
-        {
-            globalOptions = options;
-
             if (o is Component c)
             {
                 ProcessComponent(stage, o, c);
@@ -269,18 +240,25 @@ namespace mulova.preprocess
             {
                 // missing component
             }
+            //Transform t = null;
+            //switch (o)
+            //{
+            //    case o is GameObject go:
+
+
+            //}
             fieldAttributeReg.ForEach(c, (attr, f, val) =>
             {
                 if (!attr.IsValid(c, f))
                 {
-                    log.Log($"{attr.GetType().FullName} fails to verify {c.GetObjectId(out var _)}.{c.GetType().FullName}.{f.Name}");
+                    log.Log(LogType.Error, $"{c.name}.{f.Name} [{attr.TypeId}]", null, o);
                 }
             });
             methodAttributeReg.ForEach(c, (attr, m, obj) =>
             {
                 if (!attr.IsValid(obj, m))
                 {
-                    log.Log($"{attr.GetType().FullName} fails to verify {c.GetObjectId(out var _)}.{c.GetType().FullName}.{m.Name}");
+                    log.Log(LogType.Error, $"{c.name}.{m.Name} [{attr.TypeId}]", null, o);
                 }
             });
         }

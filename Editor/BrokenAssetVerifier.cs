@@ -2,6 +2,7 @@
 using System.Text.Ex;
 using mulova.commons;
 using mulova.preprocess;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace mulova.build
@@ -18,10 +19,10 @@ namespace mulova.build
             {
                 if (path.Is(FileType.Prefab) && obj == null)
                 {
-                    log.Log(path);
+                    log.Log(LogType.Error, path);
                 } else if (path.Is(FileType.Asset) && obj == null)
                 {
-                    log.Log(path);
+                    log.Log(LogType.Error, path);
                 }
             }
         }

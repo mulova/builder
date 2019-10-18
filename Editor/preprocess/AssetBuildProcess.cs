@@ -21,10 +21,24 @@ namespace mulova.preprocess
 
 		private RegexMgr excludeExp = new RegexMgr();
 		private RegexMgr includeExp = new RegexMgr();
-        protected static readonly BuildLog log = new BuildLog();
-		private static object[] globalOptions;
+        private static BuildLog _log;
+        public static BuildLog log
+        {
+            get
+            {
+                if (_log == null)
+                {
+                    _log = new BuildLog();
+                }
+                return _log;
+            }
+            set
+            {
+                _log = value;
+            }
+        }
 
-		private static List<AssetBuildProcess> pool;
+        private static List<AssetBuildProcess> pool;
 
 		private Regex excludePath
 		{
@@ -59,37 +73,6 @@ namespace mulova.preprocess
             return true;
 		}
 
-		public bool IsOption(object o)
-		{
-			if (globalOptions == null)
-			{
-				return false;
-			}
-			foreach (object option in globalOptions)
-			{
-				if (option == o)
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-
-		public T GetOption<T>()
-		{
-			if (globalOptions != null)
-			{
-				foreach (object option in globalOptions)
-				{
-					if (option is T)
-					{
-						return (T)option;
-					}
-				}
-			}
-			return default(T);
-		}
-
 		public void AddExcludePattern(string regexPattern)
 		{
 			excludeExp.AddPattern(regexPattern);
@@ -120,20 +103,8 @@ namespace mulova.preprocess
 			return pool;
 		}
 
-		public static void Reset()
-		{
-			pool = null;
-            log.Clear();
-		}
-
-        public static string GetErrorMessage()
+        public static void Process(ProcessStage stage, Object obj)
         {
-            return log.ToString();
-        }
-
-        public static void Process(ProcessStage stage, Object obj, params object[] options)
-		{
-            globalOptions = options;
             var processors = GetBuildProcessors();
             var path = AssetDatabase.GetAssetPath(obj);
             foreach (AssetBuildProcess p in processors)
@@ -149,7 +120,7 @@ namespace mulova.preprocess
                     }
                     catch (Exception ex)
                     {
-                        log.Log($"{path}: {ex}");
+                        log.Log(LogType.Error, $"{path}.{p.assetType.FullName}", ex, obj);
                     }
                 }
             }
@@ -166,7 +137,7 @@ namespace mulova.preprocess
                     }
                     catch (Exception ex)
                     {
-                        log.Log($"{path}: {ex}");
+                        log.Log(LogType.Error, $"{path}.{p.assetType.FullName}", ex, obj);
                     }
                 }
             }
@@ -183,15 +154,9 @@ namespace mulova.preprocess
                     }
                     catch (Exception ex)
                     {
-                        log.Log($"{path}: {ex}");
+                        log.Log(LogType.Error, $"{path}.{p.assetType.FullName}", ex, obj);
                     }
                 }
-            }
-            string error = log.ToString();
-            if (!error.IsEmpty())
-            {
-                Debug.LogError(error);
-                EditorUtility.DisplayDialog("Verify Fails", error, "OK");
             }
         }
 
