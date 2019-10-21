@@ -4,7 +4,7 @@ using System.Collections.Generic.Ex;
 using System.Text.RegularExpressions;
 using mulova.commons;
 using UnityEditor;
-using UnityEngine;
+using LogType = UnityEngine.LogType;
 using Object = UnityEngine.Object;
 
 namespace mulova.preprocess

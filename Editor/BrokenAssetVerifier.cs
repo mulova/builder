@@ -2,8 +2,8 @@
 using System.Text.Ex;
 using mulova.commons;
 using mulova.preprocess;
-using UnityEngine;
 using Object = UnityEngine.Object;
+using LogType = UnityEngine.LogType;
 
 namespace mulova.build
 {

@@ -8,7 +8,7 @@ using mulova.comunity;
 
 public static class BuildScriptEx {
 
-	public static readonly Loggerx log = BuildScript.log;
+	public static readonly ILogger log = BuildScript.log;
 
 	/// <summary>
 	/// Change automatic compressed texture with alpha to ETC1 for backward compatibility 

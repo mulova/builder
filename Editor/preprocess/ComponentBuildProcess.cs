@@ -8,6 +8,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Ex;
 using UnityEngine.SceneManagement;
+using LogType = UnityEngine.LogType;
 using Object = UnityEngine.Object;
 
 namespace mulova.preprocess

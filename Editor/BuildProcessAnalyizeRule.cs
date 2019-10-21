@@ -4,6 +4,7 @@ using UnityEditor.AddressableAssets.Build.AnalyzeRules;
 using UnityEditor.AddressableAssets.GUI;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
+using LogType = UnityEngine.LogType;
 
 namespace mulova.preprocess
 {

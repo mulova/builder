@@ -14,6 +14,8 @@ using UnityEditor.Build.Reporting;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using ILogger = mulova.commons.ILogger;
+using LogType = UnityEngine.LogType;
 using Object = UnityEngine.Object;
 
 namespace mulova.preprocess
@@ -43,7 +45,7 @@ namespace mulova.preprocess
 			ignoreRegex = null;
 		}
 
-		public static readonly Loggerx log = LogManager.GetLogger(typeof(BuildScript));
+		public static readonly ILogger log = LogManager.GetLogger(typeof(BuildScript));
 
 		private static bool DisplayProgressBar(string title, string info, float progress)
 		{
@@ -57,8 +59,8 @@ namespace mulova.preprocess
 
 		public static void InitEditorLog()
 		{
-			BuildScript.log.level = LogLevel.DEBUG;
-//            AssetBuilder.log.level = LogLevel.DEBUG;
+			BuildScript.log.level = commons.LogType.Log;
+//            AssetBuilder.log.level = LogType.Log;
 			Application.SetStackTraceLogType(LogType.Log, StackTraceLogType.ScriptOnly);
 			Application.SetStackTraceLogType(LogType.Assert, StackTraceLogType.Full);
 			Application.SetStackTraceLogType(LogType.Error, StackTraceLogType.Full);

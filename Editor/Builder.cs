@@ -126,9 +126,9 @@ public static class Builder
 	{
 		BuildScript.LoadEditorDll();
 		EditorAssetLoaderEx.SetEditorCdn();
-		BuildScript.log.SetLevel(LogLevel.DEBUG);
-		AssetBuilder.log.SetLevel(LogLevel.DEBUG);
-		TexFormatGroupEx.log.SetLevel(LogLevel.DEBUG);
+		BuildScript.log.SetLevel(LogType.Log);
+		AssetBuilder.log.SetLevel(LogType.Log);
+		TexFormatGroupEx.log.SetLevel(LogType.Log);
 	}
 
 	public static void Configure()

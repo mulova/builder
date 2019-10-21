@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Generic.Ex;
 using System.Text.Ex;
 using mulova.commons;
-using UnityEngine;
+using LogType = UnityEngine.LogType;
 using Object = UnityEngine.Object;
 
 namespace mulova.preprocess
