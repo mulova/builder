@@ -43,7 +43,7 @@ namespace mulova.preprocess
 			ignoreRegex = null;
 		}
 
-		public static readonly ILog log = LogManager.GetLogger(typeof(BuildScript));
+		public static readonly ILog log = LogManager.GetLogger(nameof(BuildScript));
 
 		private static bool DisplayProgressBar(string title, string info, float progress)
 		{
