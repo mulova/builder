@@ -6,6 +6,7 @@ using mulova.commons;
 using UnityEditor;
 using LogType = UnityEngine.LogType;
 using Object = UnityEngine.Object;
+using System.Ex;
 
 namespace mulova.preprocess
 {
@@ -138,7 +139,7 @@ namespace mulova.preprocess
 			if (pool == null)
 			{
 				pool = new List<AssetBuildProcess>();
-				List<Type> bps = ReflectionUtil.FindClasses<AssetBuildProcess>();
+				List<Type> bps = typeof(AssetBuildProcess).FindClasses();
 				foreach (Type t in bps)
 				{
 					if (!t.IsAbstract)

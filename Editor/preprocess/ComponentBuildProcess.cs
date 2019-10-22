@@ -10,6 +10,7 @@ using UnityEngine.Ex;
 using UnityEngine.SceneManagement;
 using LogType = UnityEngine.LogType;
 using Object = UnityEngine.Object;
+using System.Ex;
 
 namespace mulova.preprocess
 {
@@ -209,7 +210,7 @@ namespace mulova.preprocess
 			if (processPool == null)
 			{
 				processPool = new MultiMap<Type, ComponentBuildProcess>();
-				List<Type> bps = ReflectionUtil.FindClasses<ComponentBuildProcess>();
+                List<Type> bps = typeof(ComponentBuildProcess).FindClasses();
 				foreach (Type t in bps)
 				{
 					if (!t.IsAbstract)
