@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if UNITY_2019_3_OR_NEWER
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.AddressableAssets.Build.AnalyzeRules;
 using UnityEditor.AddressableAssets.GUI;
@@ -79,3 +80,4 @@ namespace mulova.preprocess
         }
     }
 }
+#endif
