@@ -420,7 +420,7 @@ runtime = EditorUserBuildSettings.activeBuildTarget.ToRuntimePlatform();
 }
 
 string buildConfigPath = string.Format("Assets/Resources/{0}.bytes", BuildConfig.FILE_NAME);
-PropertiesReader buildConfig = new PropertiesReader(buildConfigPath);
+Properties buildConfig = new Properties(buildConfigPath);
 buildConfig[nameof(BuildConfig.RUNTIME)] = runtime.ToString();
 buildConfig[nameof(BuildConfig.PLATFORM)] = runtime.GetPlatformName();
 buildConfig[nameof(BuildConfig.TARGET)] = runtime.GetTargetName();
@@ -457,7 +457,7 @@ AssetDatabase.ImportAsset(buildConfigPath, ImportAssetOptions.ForceUpdate);
 BuildConfig.Reset();
 
 string platformConfigPath = "Assets/Resources/platform_config.bytes";
-PropertiesReader platformConfig = new PropertiesReader();
+Properties platformConfig = new Properties();
 platformConfig["market"] = market;
 // merge platform_config files
 platformConfig.LoadFile("Assets/platform/platform_config.bytes");
