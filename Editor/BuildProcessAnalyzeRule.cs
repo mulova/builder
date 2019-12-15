@@ -28,7 +28,7 @@ namespace mulova.preprocess
             foreach (var g in settings.groups)
             {
                 var entry = new List<AddressableAssetEntry>();
-                g.GatherAllAssets(entry, true, true, true);
+                g.GatherAllAssets(entry, true, true, false);
                 foreach (var e in entry)
                 {
                     Object a = AssetDatabase.LoadAssetAtPath<Object>(e.AssetPath);
