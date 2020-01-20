@@ -28,7 +28,11 @@ namespace mulova.preprocess
             foreach (var g in settings.groups)
             {
                 var entry = new List<AddressableAssetEntry>();
+#if UNITY_2019_1_OR_NEWER
+                g.GatherAllAssets(entry, true, true);
+#else
                 g.GatherAllAssets(entry, true, true, false);
+#endif
                 foreach (var e in entry)
                 {
                     Object a = AssetDatabase.LoadAssetAtPath<Object>(e.AssetPath);
