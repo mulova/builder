@@ -29,9 +29,9 @@ namespace mulova.preprocess
             {
                 var entry = new List<AddressableAssetEntry>();
 #if UNITY_2019_1_OR_NEWER
-                g.GatherAllAssets(entry, true, true);
-#else
                 g.GatherAllAssets(entry, true, true, false);
+#else
+                g.GatherAllAssets(entry, true, true);
 #endif
                 foreach (var e in entry)
                 {
