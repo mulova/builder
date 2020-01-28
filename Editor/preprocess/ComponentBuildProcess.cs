@@ -295,14 +295,14 @@ namespace mulova.preprocess
             {
                 if (!attr.IsValid(c, f))
                 {
-                    log.Log(LogType.Error, $"{c.transform.GetScenePath()}.{f.Name} [{attr.TypeId}]", null, o);
+                    log.Log(LogType.Error, $"{c.transform.GetScenePath()}${attr.TypeId}.{f.Name}", null, o);
                 }
             });
             methodAttributeReg.ForEach(c, (attr, m, obj) =>
             {
                 if (!attr.IsValid(obj, m))
                 {
-                    log.Log(LogType.Error, $"{c.transform.GetScenePath()}.{m.Name} [{attr.TypeId}]", null, o);
+                    log.Log(LogType.Error, $"{c.transform.GetScenePath()}${attr.TypeId}.{m.Name}", null, o);
                 }
             });
         }
