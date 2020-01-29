@@ -8,7 +8,7 @@ using LogType = UnityEngine.LogType;
 using Object = UnityEngine.Object;
 using System.Ex;
 
-namespace mulova.preprocess
+namespace mulova.build
 {
     public abstract class AssetBuildProcess : IComparable<AssetBuildProcess>
 	{

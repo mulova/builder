@@ -7,7 +7,7 @@ using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace mulova.preprocess
+namespace mulova.build
 {
     public class PrebuildSettings : ScriptableObject
     {

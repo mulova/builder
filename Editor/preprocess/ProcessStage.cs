@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace mulova.preprocess
+namespace mulova.build
 {
     [Flags]
     public enum ProcessStage

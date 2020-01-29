@@ -16,7 +16,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
-namespace mulova.preprocess
+namespace mulova.build
 {
     public class BuildScript : IPreprocessBuildWithReport, IPostprocessBuildWithReport
     {

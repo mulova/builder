@@ -6,7 +6,7 @@ using mulova.commons;
 using LogType = UnityEngine.LogType;
 using Object = UnityEngine.Object;
 
-namespace mulova.preprocess
+namespace mulova.build
 {
     public class BuildLog
 	{

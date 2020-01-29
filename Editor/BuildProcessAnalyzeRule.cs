@@ -7,7 +7,7 @@ using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
 using LogType = UnityEngine.LogType;
 
-namespace mulova.preprocess
+namespace mulova.build
 {
     public class BuildProcessAnalyzeRule : AnalyzeRule
     {
@@ -28,11 +28,8 @@ namespace mulova.preprocess
             foreach (var g in settings.groups)
             {
                 var entry = new List<AddressableAssetEntry>();
-#if UNITY_2019_1_OR_NEWER
                 g.GatherAllAssets(entry, true, true, false);
-#else
-                g.GatherAllAssets(entry, true, true);
-#endif
+
                 foreach (var e in entry)
                 {
                     Object a = AssetDatabase.LoadAssetAtPath<Object>(e.AssetPath);
