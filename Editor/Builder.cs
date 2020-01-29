@@ -1,22 +1,10 @@
 ﻿/*
-using UnityEngine;
-using UnityEditor;
-using System.Linq;
-using System.IO;
 using System;
-using UnityEditor.DPLEditor;
-using mulova.tool;
-using mulova.util;
-using mulova.asset;
+using System.IO;
+using System.Linq;
 using System.Text;
-using System.Collections.Generic;
-using DPL;
-using asset.ex;
-using Object = UnityEngine.Object;
-using com.dryad.build;
-using mulova.log;
-using System.Xml.Serialization;
-using UnityEditor.iOS.Xcode;
+using UnityEditor;
+using UnityEngine;
 
 public static class Builder
 {

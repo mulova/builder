@@ -17,18 +17,17 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+#if UNITY_ANDROID
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Xml;
 using UnityEditor;
 using UnityEngine;
 
 namespace mulova.build
 {
-	public class AndroidManifest
+    public class AndroidManifest
 	{
 		private string inputFile;
 		private string _ns;
@@ -334,3 +333,4 @@ namespace mulova.build
 		}
 	}
 }
+#endif

@@ -18,13 +18,13 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#if UNITY_IOS
+
 namespace mulova.build
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
-    using System.Xml;
     using System.Xml.Linq;
 
     public class PlistDict : Dictionary<string, object>
@@ -163,3 +163,5 @@ namespace mulova.build
         }
     }
 }
+
+#endif

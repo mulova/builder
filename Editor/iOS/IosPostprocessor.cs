@@ -1,17 +1,14 @@
-﻿#if UNITY_IOS && PBX_PROJECT
-using System;
+﻿#if UNITY_IOS
+using System.Collections.Generic;
 using System.IO;
 using UnityEditor.iOS.Xcode;
-using System.Collections.Generic;
-using mulova.commons;
 using UnityEngine;
-using UnityEditor;
+using mulova.commons;
 
 public class IosPostprocessor
 {
     private string rootPath;
     private string pbxprojPath;
-    private string target;
     private object projObj;
     // workaround for TypeLoadException
     private object plistObj;
@@ -41,6 +38,8 @@ public class IosPostprocessor
         }
     }
 
+    private string target => proj.GetUnityMainTargetGuid();
+
     public IosPostprocessor(string projPath)
     {
         this.rootPath = projPath;
@@ -48,7 +47,6 @@ public class IosPostprocessor
 
         proj = new PBXProject();
         proj.ReadFromFile(pbxprojPath);
-        target = proj.TargetGuidByName(PBXProject.GetUnityTargetName());
     }
 
 
@@ -67,7 +65,7 @@ public class IosPostprocessor
     {
         string packageName = Path.GetFileName(physicalPath);
         string packagePath = PathUtil.Combine(dstDir, packageName);
-        DirUtil.Copy(physicalPath, Path.Combine(rootPath, packagePath), true);
+        AssetUtil.CopyDir(physicalPath, Path.Combine(rootPath, packagePath), true);
         proj.AddFileToBuild(target, proj.AddFile(packagePath, packagePath, PBXSourceTree.Source));
     }
 

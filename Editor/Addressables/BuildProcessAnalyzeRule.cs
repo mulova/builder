@@ -1,8 +1,8 @@
-﻿#if UNITY_2019_3_OR_NEWER
+﻿#if ADDRESSABLES
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.AddressableAssets.Build;
 using UnityEditor.AddressableAssets.Build.AnalyzeRules;
-using UnityEditor.AddressableAssets.GUI;
 using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
 using LogType = UnityEngine.LogType;
@@ -73,11 +73,11 @@ namespace mulova.build
     }
 
     [InitializeOnLoad]
-    class RegisterMyRule
+    class RegisterAnalyzeRule
     {
-        static RegisterMyRule()
+        static RegisterAnalyzeRule()
         {
-            AnalyzeWindow.RegisterNewRule<BuildProcessAnalyzeRule>();
+            AnalyzeSystem.RegisterNewRule<BuildProcessAnalyzeRule>();
         }
     }
 }
