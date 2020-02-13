@@ -210,7 +210,7 @@ namespace mulova.build
 			if (processPool == null)
 			{
 				processPool = new MultiMap<Type, ComponentBuildProcess>();
-                List<Type> bps = typeof(ComponentBuildProcess).FindClasses();
+                List<Type> bps = typeof(ComponentBuildProcess).FindTypes();
 				foreach (Type t in bps)
 				{
 					if (!t.IsAbstract)

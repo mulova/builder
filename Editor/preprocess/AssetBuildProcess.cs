@@ -139,7 +139,7 @@ namespace mulova.build
 			if (pool == null)
 			{
 				pool = new List<AssetBuildProcess>();
-				List<Type> bps = typeof(AssetBuildProcess).FindClasses();
+				List<Type> bps = typeof(AssetBuildProcess).FindTypes();
 				foreach (Type t in bps)
 				{
 					if (!t.IsAbstract)
