@@ -1,8 +1,8 @@
 
 {
-	"name": "com.mulova.builder",
+	"name": "mulova.builder",
 	"displayName": "mulova.builder",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"unity": "2018.1",
 	"description": "build library",
 	"keywords": ["mulova", "build"],
