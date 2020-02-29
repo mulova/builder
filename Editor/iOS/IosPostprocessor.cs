@@ -38,8 +38,11 @@ public class IosPostprocessor
         }
     }
 
+#if UNITY_2019_3_OR_NEWER
     private string target => proj.GetUnityMainTargetGuid();
-
+#else
+    private string target => proj.TargetGuidByName(PBXProject.GetUnityTargetName());
+#endif
     public IosPostprocessor(string projPath)
     {
         this.rootPath = projPath;

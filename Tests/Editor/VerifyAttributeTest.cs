@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿#if UNITY_2019_3_OR_NEWER
+using System.Collections;
 using mulova.commons;
 using mulova.unicore;
 using UnityEngine;
@@ -41,3 +42,4 @@ public class VerifyAttributeClass
     [If(null, IfAction.Error)] public Object nonNull1 = new Object();
     [NonNullableField] public Object nonNull2 = new Object();
 }
+#endif

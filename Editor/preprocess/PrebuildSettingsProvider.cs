@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine;
+#if UNITY_2019_3_OR_NEWER
+using UnityEditor.UIElements;
 using UnityEngine.UIElements;
+#endif
 
 namespace mulova.build
 {
@@ -44,7 +46,7 @@ namespace mulova.build
             return new SerializedObject(Get());
         }
     }
-
+    #if UNITY_2019_3_OR_NEWER
     // Register a SettingsProvider using UIElements for the drawing framework:
     static class PrebuildSettingsUIElementsRegister
     {
@@ -102,4 +104,5 @@ namespace mulova.build
             return provider;
         }
     }
+#endif
 }
