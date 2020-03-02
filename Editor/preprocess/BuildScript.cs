@@ -202,7 +202,7 @@ namespace mulova.build
             {
                 func.Add(GetPreprocessFunc(ProcessStage.Postprocess));
             }
-            EditorTraversal.ForEachAssetPath(FileTypeEx.UNITY_SUPPORTED, func.ToArray());
+            EditorTraversal.ForEachAssetPath("Assets", FileTypeEx.UNITY_SUPPORTED, func.ToArray());
 
             EditorTraversal.ForEachScene(roots=> ProcessScene(roots));
 			AssetDatabase.SaveAssets();
