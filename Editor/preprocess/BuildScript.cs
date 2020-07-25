@@ -255,7 +255,7 @@ namespace mulova.build
 
 		private static void PrebuildAssets(string[] allPaths, string progressTitle, Action<Object, string> preprocess)
 		{
-            EditorGUIUtil.DisplayProgressBar(allPaths, progressTitle, true, path => {
+            EditorGUIEx.DisplayProgressBar(allPaths, progressTitle, true, path => {
                 if (ignorePath.IsMatch(path))
                 {
                     return;
